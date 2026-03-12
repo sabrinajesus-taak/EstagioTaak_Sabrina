@@ -1,0 +1,1 @@
+public class NumeroDeContaDuplicadoException extends Exception {}

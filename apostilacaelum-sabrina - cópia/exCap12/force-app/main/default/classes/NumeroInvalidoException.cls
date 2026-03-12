@@ -1,0 +1,1 @@
+public class NumeroInvalidoException extends Exception {} //classe de tipo de exceção
