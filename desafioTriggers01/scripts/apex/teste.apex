@@ -5,7 +5,7 @@
 // You can also execute the entire file by running the command:
 //     SFDX: Execute Anonymous Apex with Editor Contents
 
-Id casoId = '500fj0000198SizAAE'; 
+Id casoId = '500fj0000197zqgAAA'; 
 List<Task> tarefas = new List<Task>();
 tarefas.add(new Task(Subject='Teste 1', WhatId=casoId, Status='Not Started'));
 tarefas.add(new Task(Subject='Teste 2', WhatId=casoId, Status='Not Started'));
