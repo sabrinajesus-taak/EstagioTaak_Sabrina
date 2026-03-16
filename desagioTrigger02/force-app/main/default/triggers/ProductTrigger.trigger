@@ -1,7 +1,3 @@
-trigger ProductTrigger on Product2 (after insert) {
-    //verifica se estamos depois da inserção
-    if (Trigger.isAfter && Trigger.isInsert) {
-        // Chama o método 
-        ProductTriggerHandle.createStandardPricebookEntries(Trigger.new);
-    }
+trigger ProductTrigger on Product2 (before insert, after insert, before update, after update, before delete, after delete, after undelete) {
+    new ProductTriggerHandle().run();
 }
