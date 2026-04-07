@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bloquear_Alteracao_Conta_Pedido</fullName>
+    <active>true</active>
+    <errorConditionFormula>ISCHANGED(AccountId) &amp;&amp; NOT(ISNEW())</errorConditionFormula>
+    <errorDisplayField>AccountId</errorDisplayField>
+    <errorMessage>Não é possível atualizar a conta do pedido.</errorMessage>
+</ValidationRule>
