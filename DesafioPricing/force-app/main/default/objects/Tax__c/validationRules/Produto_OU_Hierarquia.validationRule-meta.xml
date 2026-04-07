@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Produto_OU_Hierarquia</fullName>
-    <active>true</active>
-    <errorConditionFormula>( ISBLANK(Product__c) &amp;&amp; ISBLANK(ProductHierarchy__c) )
-||
-( NOT(ISBLANK(Product__c)) &amp;&amp; NOT(ISBLANK(ProductHierarchy__c)) )</errorConditionFormula>
-    <errorMessage>Deve ser especificado OU um produto OU uma hierarquia de produtos. Não é possível deixar ambos vazios ou preencher os dois ao mesmo tempo.</errorMessage>
-</ValidationRule>

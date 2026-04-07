@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Obrigatorio_AccountGroup</fullName>
-    <active>true</active>
-    <errorConditionFormula>ISBLANK(AccountGroup__c)</errorConditionFormula>
-    <errorMessage>Todo cliente deve estar vinculado a um Grupo de Contas para fins de precificação.</errorMessage>
-</ValidationRule>
