@@ -79,7 +79,7 @@ public class OrdemItemHandler extends TriggerHandler {
         // Mapa de Margem usando a chave de 18 níveis
         Map<String, Margem__c> mapMargin = new Map<String, Margem__c>();
         for(Margem__c m : listMargins) {
-            String p = (m.Product__c != null) ? String.valueOf(m.Product__c) : String.valueOf(m.ProductHierarchy__c);
+            String p = (m.Product__c != null) ? String.valueOf(m.Product__c) : (m.ProductHierarchy__c != null ? String.valueOf(m.ProductHierarchy__c) : '');
             String a = (m.Account__c != null) ? String.valueOf(m.Account__c) : (m.AccountGroup__c != null ? String.valueOf(m.AccountGroup__c) : '');
             String l = (m.City__c != null) ? String.valueOf(m.City__c) : (m.State__c != null ? String.valueOf(m.State__c) : (m.Country__c != null ? String.valueOf(m.Country__c) : ''));
             
@@ -113,8 +113,8 @@ public class OrdemItemHandler extends TriggerHandler {
         
         Map<String, Freight__c> mapFreight = new Map<String, Freight__c>();
         for(Freight__c f : listFreights) {
-            String quem = (f.Product__c != null) ? String.valueOf(f.Product__c) : String.valueOf(f.ProductHierarchy__c);
-            String onde = (f.City__c != null) ? String.valueOf(f.City__c) : (f.State__c != null ? String.valueOf(f.State__c) : String.valueOf(f.Country__c));
+            String quem = (f.Product__c != null) ? String.valueOf(f.Product__c) : (f.ProductHierarchy__c != null ? String.valueOf(f.ProductHierarchy__c) : '');
+            String onde = (f.City__c != null) ? String.valueOf(f.City__c) : (f.State__c != null ? String.valueOf(f.State__c) : (f.Country__c != null ? String.valueOf(f.Country__c) : ''));
             
             String key = quem + '_' + onde;
             
@@ -128,7 +128,7 @@ public class OrdemItemHandler extends TriggerHandler {
             Product2 produto = mapProducts.get(item.Product2Id);
             Account cliente = (pedido != null) ? mapAccounts.get(pedido.AccountId) : null;
             
-
+            
             //criterio de aceite - pricing venda 04
             if(item.Quantity <= 0 || item.UnitPrice <= 0) {
                 item.addError('Não é possível cadastrar produtos do pedido com quantidade ou preço zerados.');
@@ -146,7 +146,7 @@ public class OrdemItemHandler extends TriggerHandler {
                 
                 item.TaxPercentage__c = (impostoEncontrado != null) ? impostoEncontrado.TaxRate__C : 0;
                 
-                // Busca da Margem com especificidade 
+                // Busca da Margem com especificidade
                 Margem__c margem = PricingService.findMargin(item, pedido, mapMargin, produto.ProductHierarchy__c, cliente);
                 item.MarginPercentage__c = (margem != null) ? margem.MarginValuePercent__c : 0;
                 
@@ -156,7 +156,7 @@ public class OrdemItemHandler extends TriggerHandler {
                 // Cálculo matemático do Preço Unitário
                 Decimal custoUnitario = (produto.ProductionCost__c != null) ? produto.ProductionCost__c : 0;
                 
-                // Cálculo final 
+                // Cálculo final
                 PricingService.calculateFinalPrice(item, item.FreightValue__c, margem, item.TaxPercentage__c, custoUnitario);
             }
         }
