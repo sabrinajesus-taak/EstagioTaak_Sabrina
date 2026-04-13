@@ -53,28 +53,16 @@ public class OrdemItemHandler extends TriggerHandler {
         }
         
         //Busca e organização da Margem -----------------------------------------------------------------
-        Map<Id, Order> mapOrders = new Map<Id, Order>([
-            SELECT Id, DistributionCenter__c, State__c, City__c, Country__c, AccountId
-            FROM Order
-            WHERE Id IN :setOrderIds
-        ]);
+        Map<Id, Order> mapOrders = OrderSelector.getOrdersByIds(setOrderIds);
         
         for(Order o : mapOrders.values()) setAccountIds.add(o.AccountId);
         
-        Map<Id, Account> mapAccounts = new Map<Id, Account>([SELECT Id, AccountGroup__c FROM Account WHERE Id IN :setAccountIds]);
+        Map<Id, Account> mapAccounts = AccountSelector.getAccountByIds(setAccountIds);
         
-        Map<Id, Product2> mapProducts = new Map<Id, Product2>([
-            SELECT Id, ProductionCost__c, ProductHierarchy__c
-            FROM Product2
-            WHERE Id IN :setProductIds
-        ]);
+        Map<Id, Product2> mapProducts = ProductSelector.getProductByIds(setProductIds);
         
         // Busca todas as margens possíveis (Produtos e Hierarquias)
-        List<Margem__c> listMargins = [
-            SELECT Product__c, ProductHierarchy__c, Account__c, AccountGroup__c, City__c, State__c, Country__c, MarginValuePercent__c 
-            FROM Margem__c 
-            WHERE Status__c = 'Approved' 
-        ];
+        List<Margem__c> listMargins = MargemSelector.getMargemApproved();
         
         // Mapa de Margem usando a chave de 18 níveis
         Map<String, Margem__c> mapMargin = new Map<String, Margem__c>();
@@ -90,11 +78,7 @@ public class OrdemItemHandler extends TriggerHandler {
         }
         
         //busca e organização do IMPOSTO----------------------------------------------------------------
-        List<Tax__c> listTaxes = [
-            SELECT Product__c, State__c, DistributionCenter__c, TaxRate__c
-            FROM Tax__c
-            WHERE Status__c = 'Approved'
-        ];
+        List<Tax__c> listTaxes = TaxSelector.getTaxApproved();
         
         Map<String, Tax__c> mapTaxByCompositeKey = new Map<String, Tax__c>();
         for (Tax__c t : listTaxes) {
@@ -105,11 +89,7 @@ public class OrdemItemHandler extends TriggerHandler {
         }
         
         //Organização do Frete ------------------------------------------------------------
-        List<Freight__c> listFreights = [
-            SELECT Product__c, City__c, State__c, Country__c, DistributionCenter__c, FreightValue__c, ProductHierarchy__c
-            FROM Freight__c
-            WHERE Status__c = 'Approved' 
-        ];
+        List<Freight__c> listFreights = FreightSelector.getFreightApproved();
         
         Map<String, Freight__c> mapFreight = new Map<String, Freight__c>();
         for(Freight__c f : listFreights) {
@@ -156,6 +136,11 @@ public class OrdemItemHandler extends TriggerHandler {
                 // Cálculo matemático do Preço Unitário
                 Decimal custoUnitario = (produto.ProductionCost__c != null) ? produto.ProductionCost__c : 0;
                 
+                if(custoUnitario <= 0 || item.FreightValue__c == null || impostoEncontrado == null || margem == null || item.MarginPercentage__c <= 0) {
+                    item.addError('Não está autorizada a venda deste produto devido a falta de parâmetros, entre em contato com o time de pricing.');
+                    continue; // Pula para o próximo item sem calcular
+                }
+                
                 // Cálculo final
                 PricingService.calculateFinalPrice(item, item.FreightValue__c, margem, item.TaxPercentage__c, custoUnitario);
             }
@@ -171,12 +156,7 @@ public class OrdemItemHandler extends TriggerHandler {
             setProductIds.add(ot.Product2Id);
         }
         
-        List<OrderItem> existingItens = [
-        SELECT Id, OrderId, Product2Id
-        FROM OrderItem
-        WHERE OrderId IN :setOrderIds
-        AND Product2Id IN :setProductIds
-        ];
+        List<OrderItem> existingItens = OrderItemSelector.getOrderItemByIds(setOrderIds, setProductIds);
         
         Set<String> comparacao = new Set<String>();
         for(OrderItem it : existingItens) {
@@ -213,12 +193,7 @@ public class OrdemItemHandler extends TriggerHandler {
             idOrders.add(ot.OrderId);
         }
         
-        List<Order> listOrder = [
-            SELECT Id, Status
-            FROM Order
-            WHERE Id IN :idOrders
-        ];
-        for(Order o: listOrder) idMapOrders.put(o.Id, o);
+        idMapOrders = OrderSelector.getOrdersByIds(idOrders);
         
         for(OrderItem ot: listaParaValidar) {
             Order pedido = idMapOrders.get(ot.OrderId);

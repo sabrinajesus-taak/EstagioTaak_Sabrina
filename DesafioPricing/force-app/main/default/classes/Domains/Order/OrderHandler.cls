@@ -65,7 +65,7 @@ public class OrderHandler extends TriggerHandler {
         }
         
         if (!ordersToRecalculate.isEmpty()) {
-            List<OrderItem> itens = [SELECT Id FROM OrderItem WHERE OrderId IN :ordersToRecalculate];
+            List<OrderItem> itens = OrderItemSelector.getByOrderIds(ordersToRecalculate);
             
             if (!itens.isEmpty()) {
                 update itens;
