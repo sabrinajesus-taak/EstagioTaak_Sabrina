@@ -11,8 +11,7 @@ public class TestFactorySObject {
     
     @TestVisible
     private static void validateSObject(SObject sObj) {
-        if (sObj == null) {
-            throw new TestFactoryException('SObject cannot be null');
+        if (sObj == null) { throw new TestFactoryException('SObject cannot be null');
         }
     }
     
@@ -28,8 +27,7 @@ public class TestFactorySObject {
         validateSObject(sObj);
         
         String objectName = String.valueOf(sObj.getSObjectType());
-        if (objectName == 'Contract') {
-            objectName = 'ContractStandard';
+        if (objectName == 'Contract') { objectName = 'ContractStandard';
         }
         
         String defaultClassName =
@@ -42,10 +40,7 @@ public class TestFactorySObject {
     private SObject dispatchSObjectCreation(SObject sObj, String defaultClassName) {
         //Type.forName cria uma nova instancia sem o uso de new
         Type t = Type.forName(defaultClassName);
-        if (t == null) {
-            throw new TestFactoryException(
-                'Invalid defaults class. Missing class: ' + defaultClassName
-                );
+        if (t == null) {throw new TestFactoryException('Invalid defaults class. Missing class: ' + defaultClassName);
         }
         
         TemplateDefaultFields.FieldDefaults defaults =

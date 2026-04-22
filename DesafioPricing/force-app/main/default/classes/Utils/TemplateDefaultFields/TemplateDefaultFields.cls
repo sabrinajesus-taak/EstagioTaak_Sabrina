@@ -3,18 +3,18 @@ public with sharing class TemplateDefaultFields {
         Map<String, Object> getFieldDefaults(Decimal countSObjectCreated);
     }
     
-    // Minimal defaults for this repository demo tests.
-    //=> liga uma chave a um valor (exclusivo do apex)
-    //Map<nomeApi, valoresOBJ>
-    public class LeadDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
-            return new Map<String, Object>{
-                'FirstName' => 'Intern',
-                'LastName' => 'Demo ' + countSObjectCreated,
-                'Company' => 'Taak Routter'
-            };
-        }
-    }
+    // // Minimal defaults for this repository demo tests.
+    // //=> liga uma chave a um valor (exclusivo do apex)
+    // //Map<nomeApi, valoresOBJ>
+    // public class LeadDefaults implements FieldDefaults {
+    //     public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+    //         return new Map<String, Object>{
+    //             'FirstName' => 'Intern',
+    //             'LastName' => 'Demo ' + countSObjectCreated,
+    //             'Company' => 'Taak Routter'
+    //         };
+    //     }
+    // }
     
     public class CountryDefaults implements FieldDefaults {
         public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
@@ -129,19 +129,10 @@ public with sharing class TemplateDefaultFields {
     
     //-----------------------------------------------------
     
-    public class Pricebook2Defaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
-            return new Map<String, Object>{
-                'Name' => 'Tabela de Vendas ' + countSObjectCreated,
-                'IsActive' => true
-            };
-        }
-    }
     
     public class PricebookEntryDefaults implements FieldDefaults {
         public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
             return new Map<String, Object>{
-                'Name' => 'Pricebook Teste' + countSObjectCreated,
                 'IsActive' => true
             };
         }
