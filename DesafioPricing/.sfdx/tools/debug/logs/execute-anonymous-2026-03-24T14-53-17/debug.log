@@ -1,0 +1,71 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. Criar os Produtos (se ainda não existirem)
+Execute Anonymous: List<Product2> prods = new List<Product2>();
+Execute Anonymous: prods.add(new Product2(Name = 'Colheitadeira S700', ProductionCost__c = 50000, UniqueCode__c = 'PROD_S700'));
+Execute Anonymous: prods.add(new Product2(Name = 'Trator 7J', ProductionCost__c = 30000, UniqueCode__c = 'PROD_7J'));
+Execute Anonymous: upsert prods UniqueCode__c;
+Execute Anonymous: 
+Execute Anonymous: // 1. Pegar IDs que já existem na sua Org (Ajuste se os nomes forem diferentes)
+Execute Anonymous: Id idS700 = [SELECT Id FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1].Id;
+Execute Anonymous: Id idCidadeSP = [SELECT Id FROM City__c WHERE Name = 'São Bernardo Do Campo' LIMIT 1].Id; // Ajuste o nome da cidade se precisar
+Execute Anonymous: Id idCD = [SELECT Id FROM DistributionCenter__c LIMIT 1].Id; // Pega qualquer CD para o teste
+Execute Anonymous: 
+Execute Anonymous: // 2. Criar a lista para tentar inserir dois registros "gêmeos"
+Execute Anonymous: List<Freight__c> fretesParaTestar = new List<Freight__c>();
+Execute Anonymous: 
+Execute Anonymous: // Frete A
+Execute Anonymous: fretesParaTestar.add(new Freight__c(
+Execute Anonymous:     Product__c = idS700,
+Execute Anonymous:     City__c = idCidadeSP,
+Execute Anonymous:     DistributionCenter__c = idCD,
+Execute Anonymous:     FreightValue__c = 500.00,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: ));
+Execute Anonymous: 
+Execute Anonymous: // Frete B (Exatamente igual ao A - O "Vilão" da duplicidade)
+Execute Anonymous: fretesParaTestar.add(new Freight__c(
+Execute Anonymous:     Product__c = idS700,
+Execute Anonymous:     City__c = idCidadeSP,
+Execute Anonymous:     DistributionCenter__c = idCD,
+Execute Anonymous:     FreightValue__c = 999.00, // Valor diferente, mas a CHAVE (Prod + Cidade) é a mesma
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: ));
+Execute Anonymous: 
+Execute Anonymous: try {
+Execute Anonymous:     // Tentativa de inserção em lote
+Execute Anonymous:     insert fretesParaTestar;
+Execute Anonymous:     System.debug('✅ Erro: O sistema permitiu duplicidade! Verifique o Flow e o campo Unique.');
+Execute Anonymous: } catch (Exception e) {
+Execute Anonymous:     System.debug('🛡️ SUCESSO! O Salesforce barrou a duplicidade. Erro: ' + e.getMessage());
+Execute Anonymous: }
+11:53:17.37 (37800781)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:53:17.37 (37837488)|EXECUTION_STARTED
+11:53:17.37 (37864764)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:53:17.37 (306470313)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+11:53:17.37 (442295714)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+11:53:17.37 (459428687)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+11:53:17.37 (459522922)|CODE_UNIT_FINISHED|Validation:Freight:new
+11:53:17.37 (459534317)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+11:53:17.37 (459559296)|CODE_UNIT_FINISHED|Validation:Freight:new
+11:53:17.37 (462443369)|EXCEPTION_THROWN|[35]|System.DmlException: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Erro de Cadastro: Todo frete precisa ter um Centro de Distribuição (Origem) e um Estado (Destino) definidos.: []
+11:53:17.37 (464367872)|USER_DEBUG|[38]|DEBUG|🛡️ SUCESSO! O Salesforce barrou a duplicidade. Erro: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Erro de Cadastro: Todo frete precisa ter um Centro de Distribuição (Origem) e um Estado (Destino) definidos.: []
+11:53:17.509 (509262664)|CUMULATIVE_LIMIT_USAGE
+11:53:17.509 (509262664)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 3 out of 100
+  Number of query rows: 3 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 2 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 4 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:53:17.509 (509262664)|CUMULATIVE_LIMIT_USAGE_END
+
+11:53:17.37 (509348841)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:53:17.37 (509377770)|EXECUTION_FINISHED

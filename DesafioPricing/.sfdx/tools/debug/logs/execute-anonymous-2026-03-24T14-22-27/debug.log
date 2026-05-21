@@ -1,0 +1,72 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. Criar os Produtos (se ainda não existirem)
+Execute Anonymous: List<Product2> prods = new List<Product2>();
+Execute Anonymous: prods.add(new Product2(Name = 'Colheitadeira S700', ProductionCost__c = 50000, UniqueCode__c = 'PROD_S700'));
+Execute Anonymous: prods.add(new Product2(Name = 'Trator 7J', ProductionCost__c = 30000, UniqueCode__c = 'PROD_7J'));
+Execute Anonymous: upsert prods UniqueCode__c;
+Execute Anonymous: 
+Execute Anonymous: // 2. Pegar os IDs dos Produtos e de um CD/Estado (Ajuste os IDs conforme sua Org)
+Execute Anonymous: Id idS700 = [SELECT Id FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1].Id;
+Execute Anonymous: Id idTrator = [SELECT Id FROM Product2 WHERE Name = 'Trator 7J' LIMIT 1].Id;
+Execute Anonymous: 
+Execute Anonymous: // 3. Criar a lista de Impostos para teste
+Execute Anonymous: List<Tax__c> impostosParaInserir = new List<Tax__c>();
+Execute Anonymous: 
+Execute Anonymous: // Imposto 1: Colheitadeira em SP
+Execute Anonymous: impostosParaInserir.add(new Tax__c(
+Execute Anonymous:     Product__c = idS700,
+Execute Anonymous:     State__c = 'a04g8000000QmaTAAS', // <-- COLOQUE O ID DO REGISTRO DE ESTADO AQUI
+Execute Anonymous:     DistributionCenter__c = 'a06g8000000wkLpAAI', // <-- COLOQUE O ID DO REGISTRO DE CD AQUI
+Execute Anonymous:     TaxRate__c = 12.0,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: ));
+Execute Anonymous: 
+Execute Anonymous: // Imposto 2: Trator em SP
+Execute Anonymous: impostosParaInserir.add(new Tax__c(
+Execute Anonymous:     Product__c = idTrator,
+Execute Anonymous:     State__c = 'a04g8000000QmaTAAS', 
+Execute Anonymous:     DistributionCenter__c = 'a06g8000000wkLpAAI',
+Execute Anonymous:     TaxRate__c = 8.0,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: ));
+Execute Anonymous: 
+Execute Anonymous: try {
+Execute Anonymous:     insert impostosParaInserir;
+Execute Anonymous:     System.debug('✅ Sucesso: Impostos criados! O Flow preencheu o TaxCode automaticamente.');
+Execute Anonymous: } catch (Exception e) {
+Execute Anonymous:     System.debug('❌ Erro de Duplicidade ou Validação: ' + e.getMessage());
+Execute Anonymous: }
+11:22:27.31 (31195614)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:22:27.31 (31227256)|EXECUTION_STARTED
+11:22:27.31 (31247291)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:22:27.31 (122002565)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dte9
+11:22:27.31 (136762416)|CODE_UNIT_FINISHED|Flow:01Ig8000000dte9
+11:22:27.31 (149277337)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Tax:new
+11:22:27.31 (149354266)|CODE_UNIT_FINISHED|Validation:Tax:new
+11:22:27.31 (149364281)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Tax:new
+11:22:27.31 (149388265)|CODE_UNIT_FINISHED|Validation:Tax:new
+11:22:27.31 (175386501)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dte9
+11:22:27.31 (175416323)|CODE_UNIT_FINISHED|Flow:01Ig8000000dte9
+11:22:27.31 (175454290)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dte9
+11:22:27.31 (175461891)|CODE_UNIT_FINISHED|Flow:01Ig8000000dte9
+11:22:27.31 (182100958)|USER_DEBUG|[34]|DEBUG|✅ Sucesso: Impostos criados! O Flow preencheu o TaxCode automaticamente.
+11:22:27.259 (259811452)|CUMULATIVE_LIMIT_USAGE
+11:22:27.259 (259811452)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 2 out of 100
+  Number of query rows: 2 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 2 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 4 out of 10000
+  Maximum CPU time: 23 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:22:27.259 (259811452)|CUMULATIVE_LIMIT_USAGE_END
+
+11:22:27.31 (259892214)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:22:27.31 (259919356)|EXECUTION_FINISHED

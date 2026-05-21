@@ -1,0 +1,48 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. Pega o preço que você acabou de salvar
+Execute Anonymous: PricebookEntry pbe = [SELECT Id, UnitPrice, Product2Id FROM PricebookEntry 
+Execute Anonymous:                       WHERE Product2.Name LIKE '%Colheitadeira%' 
+Execute Anonymous:                       AND Pricebook2.IsStandard = true LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 2. Pega o seu pedido
+Execute Anonymous: Order ped = [SELECT Id, Pricebook2Id FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 3. Insere o item direto no banco (sem usar a tela de busca do Salesforce)
+Execute Anonymous: OrderItem finalItem = new OrderItem(
+Execute Anonymous:     OrderId = ped.Id,
+Execute Anonymous:     Product2Id = pbe.Product2Id,
+Execute Anonymous:     PricebookEntryId = pbe.Id,
+Execute Anonymous:     Quantity = 1,
+Execute Anonymous:     UnitPrice = pbe.UnitPrice
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: insert finalItem;
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- ✅ CONSEGUIMOS, SABRINA! O item foi inserido e a Trigger rodou! ---');
+11:42:22.83 (83215927)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:42:22.83 (83344387)|EXECUTION_STARTED
+11:42:22.83 (83388815)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:42:22.83 (240808351)|EXCEPTION_THROWN|[18]|System.DmlException: Insert failed. First exception on row 0; first error: INVALID_CROSS_REFERENCE_KEY, The Price Book Entry must belong to the Price Book related to the Order.: [PricebookEntryId]
+11:42:22.83 (243466319)|FATAL_ERROR|System.DmlException: Insert failed. First exception on row 0; first error: INVALID_CROSS_REFERENCE_KEY, The Price Book Entry must belong to the Price Book related to the Order.: [PricebookEntryId]
+
+AnonymousBlock: line 18, column 1
+11:42:22.243 (243509357)|CUMULATIVE_LIMIT_USAGE
+11:42:22.243 (243509357)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 2 out of 100
+  Number of query rows: 2 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 1 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 1 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:42:22.243 (243509357)|CUMULATIVE_LIMIT_USAGE_END
+
+11:42:22.83 (243567608)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:42:22.83 (243577016)|EXECUTION_FINISHED

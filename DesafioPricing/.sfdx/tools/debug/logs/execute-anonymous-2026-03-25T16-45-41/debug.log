@@ -1,0 +1,92 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. DADOS DO PEDIDO (Pegando o CD e a Cidade direto do Pedido 00000100)
+Execute Anonymous: Order ped = [SELECT Id, DistributionCenter__c, City__c, AccountId 
+Execute Anonymous:              FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // Busca a Colheitadeira que está no pedido
+Execute Anonymous: OrderItem item = [SELECT Id, Product2Id FROM OrderItem 
+Execute Anonymous:                  WHERE OrderId = :ped.Id AND Product2.Name LIKE '%Colheitadeira%' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 2. LIMPEZA (Para o teste ser limpo e novo)
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: delete [SELECT Id FROM Freight__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: 
+Execute Anonymous: // 3. CRIA A MARGEM (45%) - Incluindo o Centro de Distribuição!
+Execute Anonymous: insert new Margem__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     Account__c = ped.AccountId,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c, // OBRIGATÓRIO!
+Execute Anonymous:     MarginValuePercent__c = 45,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 4. CRIA O FRETE (R$ 50,00) - Incluindo o Centro de Distribuição!
+Execute Anonymous: insert new Freight__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c, // OBRIGATÓRIO!
+Execute Anonymous:     FreightValue__c = 50.00,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 5. UPDATE PARA DISPARAR A TRIGGER E O PRICINGSERVICE
+Execute Anonymous: update item;
+Execute Anonymous: 
+Execute Anonymous: // 6. VERIFICAÇÃO FINAL (AUDITORIA)
+Execute Anonymous: OrderItem res = [SELECT MarginPercentage__c, FreightValue__c, UnitPrice FROM OrderItem WHERE Id = :item.Id];
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- 🏆 AUDITORIA FINALIZADA ---');
+Execute Anonymous: System.debug('Centro de Distribuição Utilizado: ' + ped.DistributionCenter__c);
+Execute Anonymous: System.debug('Margem Gravada no Item: ' + res.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Frete Gravada no Item: R$ ' + res.FreightValue__c);
+Execute Anonymous: System.debug('Preço Final Calculado: R$ ' + res.UnitPrice);
+Execute Anonymous: 
+Execute Anonymous: if(res.MarginPercentage__c == 45) {
+Execute Anonymous:     System.debug('✅ TAREFA CONCLUÍDA! O CD bateu e o cálculo funcionou!');
+Execute Anonymous: } else {
+Execute Anonymous:     System.debug('❌ Ainda null? Verifica se o Status na sua Picklist é "Approved" ou "Aprovado"!');
+Execute Anonymous: }
+13:45:40.40 (40265693)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+13:45:40.40 (40287184)|EXECUTION_STARTED
+13:45:40.40 (40295042)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+13:45:40.40 (90782952)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+13:45:40.40 (90879001)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+13:45:40.40 (349088714)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+13:45:40.40 (349146995)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+13:45:40.40 (412213482)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+13:45:40.40 (421323916)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+13:45:40.40 (430929769)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+13:45:40.40 (430999824)|CODE_UNIT_FINISHED|Validation:Margem:new
+13:45:40.40 (455153027)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+13:45:40.40 (455225879)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+13:45:40.40 (455284097)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+13:45:40.40 (455297767)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+13:45:40.40 (476844607)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+13:45:40.40 (576713071)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+13:45:40.40 (590366467)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+13:45:40.40 (590479177)|CODE_UNIT_FINISHED|Validation:Freight:new
+13:45:40.40 (592514894)|EXCEPTION_THROWN|[24]|System.DmlException: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Erro de Cadastro: Todo frete precisa ter um Centro de Distribuição (Origem) e um Estado (Destino) definidos.: []
+13:45:40.40 (593175034)|FATAL_ERROR|System.DmlException: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Erro de Cadastro: Todo frete precisa ter um Centro de Distribuição (Origem) e um Estado (Destino) definidos.: []
+
+AnonymousBlock: line 24, column 1
+13:45:40.593 (593193905)|CUMULATIVE_LIMIT_USAGE
+13:45:40.593 (593193905)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 4 out of 100
+  Number of query rows: 4 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 4 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 4 out of 10000
+  Maximum CPU time: 77 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+13:45:40.593 (593193905)|CUMULATIVE_LIMIT_USAGE_END
+
+13:45:40.40 (593251978)|CODE_UNIT_FINISHED|execute_anonymous_apex
+13:45:40.40 (593259452)|EXECUTION_FINISHED

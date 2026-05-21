@@ -1,0 +1,57 @@
+[
+  {
+    "name": "AccountAdd__c",
+    "custom": true,
+    "queryable": true
+  },
+  {
+    "name": "AccountGroup__c",
+    "custom": true,
+    "queryable": true
+  },
+  {
+    "name": "City__c",
+    "custom": true,
+    "queryable": true
+  },
+  {
+    "name": "Country__c",
+    "custom": true,
+    "queryable": true
+  },
+  {
+    "name": "DistributionCenter__c",
+    "custom": true,
+    "queryable": true
+  },
+  {
+    "name": "Freight__c",
+    "custom": true,
+    "queryable": true
+  },
+  {
+    "name": "Margem__c",
+    "custom": true,
+    "queryable": true
+  },
+  {
+    "name": "ProductHierarchy__c",
+    "custom": true,
+    "queryable": true
+  },
+  {
+    "name": "State__c",
+    "custom": true,
+    "queryable": true
+  },
+  {
+    "name": "Tax__c",
+    "custom": true,
+    "queryable": true
+  },
+  {
+    "name": "aymentCondition__c",
+    "custom": true,
+    "queryable": true
+  }
+]

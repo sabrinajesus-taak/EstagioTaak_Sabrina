@@ -1,0 +1,10 @@
+{
+  "compiled": true,
+  "success": false,
+  "line": 1,
+  "column": 1,
+  "compileProblem": null,
+  "exceptionMessage": "System.QueryException: List has no rows for assignment to SObject",
+  "exceptionStackTrace": "AnonymousBlock: line 1, column 1",
+  "executedAt": "2026-03-25T13:51:59.911Z"
+}

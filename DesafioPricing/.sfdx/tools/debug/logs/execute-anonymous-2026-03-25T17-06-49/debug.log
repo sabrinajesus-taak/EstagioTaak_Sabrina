@@ -1,0 +1,95 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. DADOS REAIS
+Execute Anonymous: Order ped = [SELECT Id, AccountId, City__c, State__c, Country__c, DistributionCenter__c 
+Execute Anonymous:              FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: OrderItem item = [SELECT Id, Product2Id FROM OrderItem 
+Execute Anonymous:                  WHERE OrderId = :ped.Id AND Product2.Name LIKE '%Colheitadeira%' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 2. LIMPEZA
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: delete [SELECT Id FROM Freight__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: 
+Execute Anonymous: // 3. CRIAÇÃO DA MARGEM (45%) - Usando o padrão de Underline da sua classe
+Execute Anonymous: insert new Margem__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     Account__c = ped.AccountId,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     State__c = ped.State__c,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:     MarginValuePercent__c = 45,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 4. CRIAÇÃO DO FRETE (R$ 50,00) - Usando o padrão SEM Underline da sua classe
+Execute Anonymous: insert new Freight__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     State__c = ped.State__c,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:     FreightValue__c = 50.00,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 5. O PULO DO GATO: Vamos debugar o que a Trigger está vendo!
+Execute Anonymous: update item;
+Execute Anonymous: 
+Execute Anonymous: // 6. VERIFICAÇÃO FINAL
+Execute Anonymous: OrderItem res = [SELECT MarginPercentage__c, FreightValue__c, UnitPrice FROM OrderItem WHERE Id = :item.Id];
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- 🏁 RESULTADO FINAL ---');
+Execute Anonymous: System.debug('ID Produto: ' + item.Product2Id);
+Execute Anonymous: System.debug('ID Cidade: ' + ped.City__c);
+Execute Anonymous: System.debug('ID CD: ' + ped.DistributionCenter__c);
+Execute Anonymous: System.debug('Margem no Item: ' + res.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Frete no Item: R$ ' + res.FreightValue__c);
+Execute Anonymous: System.debug('Preço: R$ ' + res.UnitPrice);
+14:06:46.174 (174191860)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+14:06:46.174 (174230064)|EXECUTION_STARTED
+14:06:46.174 (174254099)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+14:06:46.174 (424102813)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:06:46.174 (424135770)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:06:47.428 (1428115333)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:06:47.428 (1428155280)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:06:47.428 (1525021258)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:06:47.428 (1679019660)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:06:47.428 (1703183570)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+14:06:47.428 (1703272460)|CODE_UNIT_FINISHED|Validation:Margem:new
+14:06:47.428 (1745638887)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:06:47.428 (1745667847)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:06:47.428 (1745706825)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:06:47.428 (1745712183)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:06:47.428 (1773701697)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:06:47.428 (1901308567)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:06:47.428 (1922488437)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:06:47.428 (1922619157)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:06:47.428 (1956534350)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:06:47.428 (1956563658)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:06:47.428 (1956599604)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:06:47.428 (1956605219)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:06:47.428 (2146517779)|USER_DEBUG|[38]|DEBUG|--- 🏁 RESULTADO FINAL ---
+14:06:47.428 (2146639690)|USER_DEBUG|[39]|DEBUG|ID Produto: 01tg8000000nFcDAAU
+14:06:47.428 (2146663544)|USER_DEBUG|[40]|DEBUG|ID Cidade: a05g8000001KAc9AAG
+14:06:47.428 (2146677541)|USER_DEBUG|[41]|DEBUG|ID CD: a06g8000000wkLpAAI
+14:06:47.428 (2146694451)|USER_DEBUG|[42]|DEBUG|Margem no Item: null%
+14:06:47.428 (2146704580)|USER_DEBUG|[43]|DEBUG|Frete no Item: R$ null
+14:06:47.428 (2146776697)|USER_DEBUG|[44]|DEBUG|Preço: R$ 100.00
+14:06:48.374 (2374697845)|CUMULATIVE_LIMIT_USAGE
+14:06:48.374 (2374697845)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 5 out of 100
+  Number of query rows: 5 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 5 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 5 out of 10000
+  Maximum CPU time: 101 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+14:06:48.374 (2374697845)|CUMULATIVE_LIMIT_USAGE_END
+
+14:06:47.428 (2374793604)|CODE_UNIT_FINISHED|execute_anonymous_apex
+14:06:47.428 (2374818456)|EXECUTION_FINISHED

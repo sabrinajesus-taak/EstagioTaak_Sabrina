@@ -1,0 +1,10 @@
+{
+  "compiled": true,
+  "success": false,
+  "line": 7,
+  "column": 1,
+  "compileProblem": null,
+  "exceptionMessage": "System.StringException: Invalid id: Grupo A",
+  "exceptionStackTrace": "AnonymousBlock: line 7, column 1",
+  "executedAt": "2026-03-25T13:55:28.408Z"
+}

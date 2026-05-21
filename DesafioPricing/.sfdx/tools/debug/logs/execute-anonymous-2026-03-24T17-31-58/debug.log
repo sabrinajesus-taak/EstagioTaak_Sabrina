@@ -1,0 +1,88 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. Setup de Dados (IDs da sua Org)
+Execute Anonymous: Id idProd = [SELECT Id FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1].Id;
+Execute Anonymous: Id idHiera = [SELECT Id, ProductHierarchy__c FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1].ProductHierarchy__c;
+Execute Anonymous: Id idCid = [SELECT Id FROM City__c WHERE Name = 'São Bernardo Do Campo' LIMIT 1].Id;
+Execute Anonymous: Id idEst = [SELECT Id FROM State__c WHERE Name = 'São Paulo' LIMIT 1].Id;
+Execute Anonymous: Id idPais = [SELECT Id FROM Country__c WHERE Name = 'Brasil' LIMIT 1].Id;
+Execute Anonymous: Id idCD = [SELECT Id FROM DistributionCenter__c LIMIT 1].Id;
+Execute Anonymous: 
+Execute Anonymous: // Limpeza para o teste ser puro
+Execute Anonymous: delete [SELECT Id FROM Freight__c WHERE (Product__c = :idProd OR ProductHierarchy__c = :idHiera) AND Status__c = 'Approved'];
+Execute Anonymous: 
+Execute Anonymous: List<Freight__c> fretesEscada = new List<Freight__c>();
+Execute Anonymous: 
+Execute Anonymous: // Nível 1: Produto + Cidade (Sempre enviando Estado e CD para satisfazer a Validation Rule)
+Execute Anonymous: fretesEscada.add(new Freight__c(Product__c=idProd, City__c=idCid, State__c=idEst, DistributionCenter__c=idCD, FreightValue__c=100, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 2: Produto + Estado
+Execute Anonymous: fretesEscada.add(new Freight__c(Product__c=idProd, State__c=idEst, DistributionCenter__c=idCD, FreightValue__c=200, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 3: Produto + País
+Execute Anonymous: fretesEscada.add(new Freight__c(Product__c=idProd, Country__c=idPais, State__c=idEst, DistributionCenter__c=idCD, FreightValue__c=300, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 4: Hierarquia + Cidade
+Execute Anonymous: fretesEscada.add(new Freight__c(ProductHierarchy__c=idHiera, City__c=idCid, State__c=idEst, DistributionCenter__c=idCD, FreightValue__c=400, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 5: Hierarquia + Estado
+Execute Anonymous: fretesEscada.add(new Freight__c(ProductHierarchy__c=idHiera, State__c=idEst, DistributionCenter__c=idCD, FreightValue__c=500, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 6: Hierarquia + País
+Execute Anonymous: fretesEscada.add(new Freight__c(ProductHierarchy__c=idHiera, Country__c=idPais, State__c=idEst, DistributionCenter__c=idCD, FreightValue__c=600, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: insert fretesEscada;
+Execute Anonymous: 
+Execute Anonymous: 
+Execute Anonymous: System.debug('🧪 --- TESTE DOS 6 NÍVEIS --- 🧪');
+Execute Anonymous: System.debug('O resultado esperado é R$ 100,00 (Nível 1 - Mais específico)');
+Execute Anonymous: 
+Execute Anonymous: // Simulação da busca (Igual à sua Trigger)
+Execute Anonymous: // Aqui você valida se o seu map e seus IFs estão pegando o freteEscada[0]
+Execute Anonymous: // Rode e verifique o valor atribuído ao item no final.
+14:31:57.46 (46957942)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+14:31:57.46 (46987553)|EXECUTION_STARTED
+14:31:57.46 (47010197)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+14:31:57.46 (112588678)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:31:57.46 (112709189)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:31:57.46 (383283574)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:31:57.46 (396782467)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:31:57.46 (408482925)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:31:57.46 (408581115)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:31:57.46 (408589947)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:31:57.46 (408611064)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:31:57.46 (408615070)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:31:57.46 (408628952)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:31:57.46 (408632785)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:31:57.46 (408645743)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:31:57.46 (408649287)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:31:57.46 (408661461)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:31:57.46 (408664859)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:31:57.46 (408677278)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:31:57.46 (471442865)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:31:57.46 (471549309)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:31:57.46 (471675469)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:31:57.46 (471692623)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:31:57.46 (474482961)|EXCEPTION_THROWN|[32]|System.DmlException: Insert failed. First exception on row 2; first error: DUPLICATE_VALUE, duplicate value found: FreightCode__c duplicates value on record with id: a0Ag8000000P4oWEAS: []
+14:31:57.46 (475090481)|FATAL_ERROR|System.DmlException: Insert failed. First exception on row 2; first error: DUPLICATE_VALUE, duplicate value found: FreightCode__c duplicates value on record with id: a0Ag8000000P4oWEAS: []
+
+AnonymousBlock: line 32, column 1
+14:31:57.475 (475119085)|CUMULATIVE_LIMIT_USAGE
+14:31:57.475 (475119085)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 7 out of 100
+  Number of query rows: 7 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 2 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 7 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+14:31:57.475 (475119085)|CUMULATIVE_LIMIT_USAGE_END
+
+14:31:57.46 (475187315)|CODE_UNIT_FINISHED|execute_anonymous_apex
+14:31:57.46 (475200318)|EXECUTION_FINISHED

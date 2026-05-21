@@ -1,0 +1,83 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. PEGA O PEDIDO E A COLHEITADEIRA (DNA do Pedido)
+Execute Anonymous: Order ped = [SELECT Id, DistributionCenter__c, City__c, State__c, AccountId, ShippingState 
+Execute Anonymous:              FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // Busca o item que a gente já inseriu (garantindo que estamos no registro certo)
+Execute Anonymous: OrderItem item = [SELECT Id, Product2Id, PricebookEntryId FROM OrderItem 
+Execute Anonymous:                  WHERE OrderId = :ped.Id AND Product2.Name LIKE '%Colheitadeira%' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 2. LIMPEZA (Para não ter lixo de teste anterior)
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: delete [SELECT Id FROM Freight__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: // delete [SELECT Id FROM Imposto__c WHERE Product__c = :item.Product2Id]; // Descomente se tiver objeto de Imposto
+Execute Anonymous: 
+Execute Anonymous: // 3. CRIA A MARGEM (45%) - MATCH COM SEU SCRIPT (Produto + Conta + Cidade)
+Execute Anonymous: insert new Margem__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     Account__c = ped.AccountId,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     MarginValuePercent__c = 45,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 4. CRIA O FRETE (Exemplo: R$ 50,00) - MATCH COM SEU SCRIPT (Produto + Cidade + CD)
+Execute Anonymous: insert new Freight__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:     FreightValue__c = 50.00,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 5. DISPARA O CÁLCULO (Update no item chama a Trigger -> chama o PricingService)
+Execute Anonymous: update item;
+Execute Anonymous: 
+Execute Anonymous: // 6. O GRANDE FINAL (Auditando os campos)
+Execute Anonymous: OrderItem res = [SELECT MarginPercentage__c, FreightValue__c, UnitPrice FROM OrderItem WHERE Id = :item.Id];
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- 🏁 RESULTADO DA AUDITORIA ---');
+Execute Anonymous: System.debug('Margem Aplicada: ' + res.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Frete Aplicado: R$ ' + res.FreightValue__c);
+Execute Anonymous: System.debug('Preço Final Calculado: R$ ' + res.UnitPrice);
+Execute Anonymous: 
+Execute Anonymous: if(res.MarginPercentage__c == 45) {
+Execute Anonymous:     System.debug('✅ VITÓRIA! A CLASSE PREENCHEU A MARGEM E FEZ A CONTA!');
+Execute Anonymous: } else {
+Execute Anonymous:     System.debug('❌ A Margem ainda está null. Verifique se os nomes dos campos no SELECT do PricingService batem com o Objeto.');
+Execute Anonymous: }
+13:43:53.138 (138479996)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+13:43:53.138 (138505701)|EXECUTION_STARTED
+13:43:53.138 (138513193)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+13:43:53.138 (358757123)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+13:43:53.138 (358800209)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+13:43:53.138 (1038797175)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+13:43:53.138 (1038830198)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+13:43:53.138 (1120437128)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+13:43:54.241 (1241899180)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+13:43:54.241 (1258186583)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+13:43:54.241 (1258265090)|CODE_UNIT_FINISHED|Validation:Margem:new
+13:43:54.241 (1269555746)|EXCEPTION_THROWN|[15]|System.DmlException: Insert failed. First exception on row 0; first error: REQUIRED_FIELD_MISSING, Required fields are missing: [DistributionCenter__c]: [DistributionCenter__c]
+13:43:54.241 (1271235973)|FATAL_ERROR|System.DmlException: Insert failed. First exception on row 0; first error: REQUIRED_FIELD_MISSING, Required fields are missing: [DistributionCenter__c]: [DistributionCenter__c]
+
+AnonymousBlock: line 15, column 1
+13:43:54.271 (1271254271)|CUMULATIVE_LIMIT_USAGE
+13:43:54.271 (1271254271)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 4 out of 100
+  Number of query rows: 4 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 3 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 3 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+13:43:54.271 (1271254271)|CUMULATIVE_LIMIT_USAGE_END
+
+13:43:54.241 (1271298972)|CODE_UNIT_FINISHED|execute_anonymous_apex
+13:43:54.241 (1271306018)|EXECUTION_FINISHED

@@ -1,0 +1,81 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. SETUP DO PRODUTO E PEDIDO
+Execute Anonymous: Product2 prod = [SELECT Id, ProductHierarchy__c FROM Product2 WHERE Name = 'GenWatt Diesel 1000kW' LIMIT 1];
+Execute Anonymous: Order ped = [SELECT Id, AccountId, City__c, State__c, DistributionCenter__c, Pricebook2Id 
+Execute Anonymous:              FROM Order WHERE OrderNumber = '00000100' LIMIT 1]; 
+Execute Anonymous: 
+Execute Anonymous: PricebookEntry pbe = [SELECT Id, UnitPrice FROM PricebookEntry 
+Execute Anonymous:                       WHERE Product2Id = :prod.Id AND Pricebook2Id = :ped.Pricebook2Id LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: Account acc = [SELECT Id, AccountGroup__c FROM Account WHERE Id = :ped.AccountId];
+Execute Anonymous: 
+Execute Anonymous: // 2. LIMPEZA DE DADOS ANTIGOS
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :prod.Id OR ProductHierarchy__c = :prod.ProductHierarchy__c];
+Execute Anonymous: 
+Execute Anonymous: // 3. CRIANDO OS NÍVEIS SEPARADOS (Respeitando sua Regra de Validação)
+Execute Anonymous: // Vamos criar apenas UM registro por vez para o sistema não se confundir
+Execute Anonymous: Margem__c m1 = new Margem__c();
+Execute Anonymous: m1.Product__c = prod.Id;
+Execute Anonymous: m1.Account__c = acc.Id;
+Execute Anonymous: m1.City__c = ped.City__c;
+Execute Anonymous: m1.DistributionCenter__c = ped.DistributionCenter__c;
+Execute Anonymous: m1.MarginValuePercent__c = 45;
+Execute Anonymous: m1.Status__c = 'Approved';
+Execute Anonymous: insert m1; 
+Execute Anonymous: 
+Execute Anonymous: // 4. INSERÇÃO DO ITEM (Aqui a Trigger vai rodar)
+Execute Anonymous: OrderItem novoItem = new OrderItem(
+Execute Anonymous:     OrderId = ped.Id, 
+Execute Anonymous:     Product2Id = prod.Id, 
+Execute Anonymous:     PricebookEntryId = pbe.Id,
+Execute Anonymous:     Quantity = 1, 
+Execute Anonymous:     UnitPrice = pbe.UnitPrice
+Execute Anonymous: );
+Execute Anonymous: insert novoItem;
+Execute Anonymous: 
+Execute Anonymous: // 5. VERIFICAÇÃO FINAL NO LOG
+Execute Anonymous: OrderItem result = [SELECT MarginPercentage__c, UnitPrice FROM OrderItem WHERE Id = :novoItem.Id];
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- 🏆 RESULTADO FINAL DO DESAFIO ---');
+Execute Anonymous: System.debug('Margem aplicada: ' + result.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Preço Final Calculado: R$ ' + result.UnitPrice);
+Execute Anonymous: 
+Execute Anonymous: if(result.MarginPercentage__c == 45) {
+Execute Anonymous:     System.debug('✅ SUCESSO: A Trigger priorizou a margem de Produto!');
+Execute Anonymous: }
+11:18:45.45 (45729590)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:18:45.45 (45750849)|EXECUTION_STARTED
+11:18:45.45 (45762305)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:18:45.45 (104450936)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:18:45.45 (104481764)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:18:45.45 (308484911)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:18:45.45 (321418448)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:18:45.45 (334364497)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+11:18:45.45 (334440976)|CODE_UNIT_FINISHED|Validation:Margem:new
+11:18:45.45 (353204690)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:18:45.45 (353231761)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:18:45.45 (353259730)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:18:45.45 (353265242)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:18:45.45 (590366529)|USER_DEBUG|[38]|DEBUG|--- 🏆 RESULTADO FINAL DO DESAFIO ---
+11:18:45.45 (590464458)|USER_DEBUG|[39]|DEBUG|Margem aplicada: null%
+11:18:45.45 (590544145)|USER_DEBUG|[40]|DEBUG|Preço Final Calculado: R$ 100000.00
+11:18:45.745 (745666157)|CUMULATIVE_LIMIT_USAGE
+11:18:45.745 (745666157)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 6 out of 100
+  Number of query rows: 6 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 3 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 3 out of 10000
+  Maximum CPU time: 70 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:18:45.745 (745666157)|CUMULATIVE_LIMIT_USAGE_END
+
+11:18:45.45 (745739916)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:18:45.45 (745760730)|EXECUTION_FINISHED

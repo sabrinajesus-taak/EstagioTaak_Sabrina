@@ -1,0 +1,72 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. Setup de Dados (IDs da sua Org)
+Execute Anonymous: Id idProd = [SELECT Id FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1].Id;
+Execute Anonymous: Id idHiera = [SELECT Id, ProductHierarchy__c FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1].ProductHierarchy__c;
+Execute Anonymous: Id idCid = [SELECT Id FROM City__c WHERE Name = 'São Bernardo Do Campo' LIMIT 1].Id;
+Execute Anonymous: Id idEst = [SELECT Id FROM State__c WHERE Name = 'São Paulo' LIMIT 1].Id;
+Execute Anonymous: Id idPais = [SELECT Id FROM Country__c WHERE Name = 'Brasil' LIMIT 1].Id;
+Execute Anonymous: Id idCD = [SELECT Id FROM DistributionCenter__c LIMIT 1].Id;
+Execute Anonymous: 
+Execute Anonymous: // Limpeza para o teste ser puro
+Execute Anonymous: delete [SELECT Id FROM Freight__c WHERE (Product__c = :idProd OR ProductHierarchy__c = :idHiera) AND Status__c = 'Approved'];
+Execute Anonymous: 
+Execute Anonymous: // Precisamos de mais um estado para o teste não colidir
+Execute Anonymous: Id idOutroEst = [SELECT Id FROM State__c WHERE Name != 'São Paulo' LIMIT 1].Id; 
+Execute Anonymous: 
+Execute Anonymous: List<Freight__c> fretesEscada = new List<Freight__c>();
+Execute Anonymous: 
+Execute Anonymous: // Nível 1: Produto + Cidade + SP (Chave: Prod_Cid)
+Execute Anonymous: fretesEscada.add(new Freight__c(Product__c=idProd, City__c=idCid, State__c=idEst, DistributionCenter__c=idCD, FreightValue__c=100, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 2: Produto + Estado SP (Chave: Prod_SP)
+Execute Anonymous: fretesEscada.add(new Freight__c(Product__c=idProd, State__c=idEst, DistributionCenter__c=idCD, FreightValue__c=200, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 3: Produto + País (Para não repetir a chave do Nível 2, vamos usar outro estado)
+Execute Anonymous: fretesEscada.add(new Freight__c(Product__c=idProd, Country__c=idPais, State__c=idOutroEst, DistributionCenter__c=idCD, FreightValue__c=300, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 4: Hierarquia + Cidade + SP
+Execute Anonymous: fretesEscada.add(new Freight__c(ProductHierarchy__c=idHiera, City__c=idCid, State__c=idEst, DistributionCenter__c=idCD, FreightValue__c=400, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 5: Hierarquia + Estado SP
+Execute Anonymous: fretesEscada.add(new Freight__c(ProductHierarchy__c=idHiera, State__c=idEst, DistributionCenter__c=idCD, FreightValue__c=500, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 6: Hierarquia + País (Usando outro estado também)
+Execute Anonymous: fretesEscada.add(new Freight__c(ProductHierarchy__c=idHiera, Country__c=idPais, State__c=idOutroEst, DistributionCenter__c=idCD, FreightValue__c=600, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: insert fretesEscada;
+Execute Anonymous: 
+Execute Anonymous: 
+Execute Anonymous: System.debug('🧪 --- TESTE DOS 6 NÍVEIS --- 🧪');
+Execute Anonymous: System.debug('O resultado esperado é R$ 100,00 (Nível 1 - Mais específico)');
+Execute Anonymous: 
+Execute Anonymous: // Simulação da busca (Igual à sua Trigger)
+Execute Anonymous: // Aqui você valida se o seu map e seus IFs estão pegando o freteEscada[0]
+Execute Anonymous: // Rode e verifique o valor atribuído ao item no final.
+14:33:50.51 (51013132)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+14:33:50.51 (51044489)|EXECUTION_STARTED
+14:33:50.51 (51071657)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+14:33:50.51 (133857991)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:33:50.51 (133896371)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:33:50.51 (383098873)|FATAL_ERROR|System.QueryException: List has no rows for assignment to SObject
+
+AnonymousBlock: line 13, column 1
+14:33:50.383 (383179804)|CUMULATIVE_LIMIT_USAGE
+14:33:50.383 (383179804)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 8 out of 100
+  Number of query rows: 7 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 1 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 1 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+14:33:50.383 (383179804)|CUMULATIVE_LIMIT_USAGE_END
+
+14:33:50.51 (383259896)|CODE_UNIT_FINISHED|execute_anonymous_apex
+14:33:50.51 (383278041)|EXECUTION_FINISHED

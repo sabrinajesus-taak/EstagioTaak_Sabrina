@@ -1,0 +1,71 @@
+{
+  "summary": {
+    "outcome": "Failed",
+    "testsRan": 2,
+    "passing": 1,
+    "failing": 1,
+    "skipped": 0,
+    "passRate": "50%",
+    "failRate": "50%",
+    "skipRate": "0%",
+    "testStartTime": "2026-04-10T16:47:48.000Z",
+    "testSetupTimeInMs": 1421,
+    "testExecutionTimeInMs": 588,
+    "testTotalTimeInMs": 2009,
+    "commandTimeInMs": 231,
+    "hostname": "https://resourceful-moose-fmmd11-dev-ed.trailblaze.my.salesforce.com",
+    "orgId": "00Dg8000001b33BEAQ",
+    "username": "sabrina.jesus@resourceful-moose-fmmd11.com",
+    "testRunId": "707g800000889Cr",
+    "userId": "005g80000010N45AAE"
+  },
+  "tests": [
+    {
+      "id": "07Mg80000010LVeEAM",
+      "queueItemId": "709g8000002CqGDAA0",
+      "stackTrace": "Class.OrderItemHandlerTest.pricingOrderItemTest: line 106, column 1",
+      "message": "System.AssertException: Assertion Failed: Expected: 10.0, Actual: 0.00",
+      "asyncApexJobId": "707g800000889CrAAI",
+      "methodName": "pricingOrderItemTest",
+      "outcome": "Fail",
+      "apexLogId": "07Lg8000001SSGwEAO",
+      "apexClass": {
+        "id": "01pg8000001w1MbAAI",
+        "name": "OrderItemHandlerTest",
+        "namespacePrefix": null,
+        "fullName": "OrderItemHandlerTest"
+      },
+      "runTime": 588,
+      "testTimestamp": "2026-04-10T16:47:50.000+0000",
+      "fullName": "OrderItemHandlerTest.pricingOrderItemTest",
+      "diagnostic": {
+        "exceptionMessage": "System.AssertException: Assertion Failed: Expected: 10.0, Actual: 0.00",
+        "exceptionStackTrace": "Class.OrderItemHandlerTest.pricingOrderItemTest: line 106, column 1",
+        "className": "OrderItemHandlerTest",
+        "compileProblem": "",
+        "lineNumber": 106,
+        "columnNumber": 1
+      },
+      "category": "Apex"
+    }
+  ],
+  "setup": [
+    {
+      "id": "07Mg80000010LVdEAM",
+      "stackTrace": null,
+      "message": null,
+      "asyncApexJobId": "707g800000889CrAAI",
+      "methodName": "setup",
+      "apexLogId": "07Lg8000001SSGwEAO",
+      "apexClass": {
+        "id": "01pg8000001w1MbAAI",
+        "name": "OrderItemHandlerTest",
+        "namespacePrefix": null,
+        "fullName": "OrderItemHandlerTest"
+      },
+      "testSetupTime": 1421,
+      "testTimestamp": "2026-04-10T16:47:48.000+0000",
+      "fullName": "OrderItemHandlerTest.setup"
+    }
+  ]
+}

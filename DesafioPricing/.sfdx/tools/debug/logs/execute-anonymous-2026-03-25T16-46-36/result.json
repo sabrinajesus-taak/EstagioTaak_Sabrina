@@ -1,0 +1,10 @@
+{
+  "compiled": true,
+  "success": false,
+  "line": 24,
+  "column": 1,
+  "compileProblem": null,
+  "exceptionMessage": "System.DmlException: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Erro de Cadastro: Todo frete precisa ter um Centro de Distribuição (Origem) e um Estado (Destino) definidos.: []",
+  "exceptionStackTrace": "AnonymousBlock: line 24, column 1",
+  "executedAt": "2026-03-25T16:46:36.841Z"
+}

@@ -1,0 +1,75 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. BUSCA DO PRODUTO (O único que precisamos ter certeza do nome)
+Execute Anonymous: List<Product2> prods = [SELECT Id, ProductHierarchy__c FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: if(prods.isEmpty()) {
+Execute Anonymous:     System.debug('❌ ERRO: Não achei o produto Colheitadeira S700. Verifique o nome!');
+Execute Anonymous: } else {
+Execute Anonymous:     Product2 prod = prods[0];
+Execute Anonymous:     
+Execute Anonymous:     // 2. BUSCA DE UM PEDIDO QUALQUER QUE JÁ TENHA CIDADE E CD
+Execute Anonymous:     // Assim não precisamos criar nada do zero!
+Execute Anonymous:     List<Order> peds = [SELECT Id, AccountId, City__c, State__c, Country__c, DistributionCenter__c 
+Execute Anonymous:                         FROM Order 
+Execute Anonymous:                         WHERE City__c != null AND DistributionCenter__c != null 
+Execute Anonymous:                         LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous:     if(peds.isEmpty()) {
+Execute Anonymous:         System.debug('❌ ERRO: Não achei nenhum Pedido pronto com Cidade/CD no banco.');
+Execute Anonymous:     } else {
+Execute Anonymous:         Order ped = peds[0];
+Execute Anonymous:         Account acc = [SELECT Id, AccountGroup__c FROM Account WHERE Id = :ped.AccountId];
+Execute Anonymous: 
+Execute Anonymous:         // 3. LIMPEZA E CRIAÇÃO DAS MARGENS DE TESTE
+Execute Anonymous:         delete [SELECT Id FROM Margem__c WHERE Product__c = :prod.Id OR ProductHierarchy__c = :prod.ProductHierarchy__c];
+Execute Anonymous: 
+Execute Anonymous:         List<Margem__c> margens = new List<Margem__c>();
+Execute Anonymous:         // Margem A: Específica (30%)
+Execute Anonymous:         margens.add(new Margem__c(
+Execute Anonymous:             Product__c = prod.Id, Account__c = acc.Id, City__c = ped.City__c, 
+Execute Anonymous:             DistributionCenter__c = ped.DistributionCenter__c, MarginValuePercent__c = 30, Status__c = 'Approved'
+Execute Anonymous:         ));
+Execute Anonymous:         // Margem B: Geral (10%)
+Execute Anonymous:         margens.add(new Margem__c(
+Execute Anonymous:             ProductHierarchy__c = prod.ProductHierarchy__c, DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:             MarginValuePercent__c = 10, Status__c = 'Approved'
+Execute Anonymous:         ));
+Execute Anonymous:         insert margens;
+Execute Anonymous: 
+Execute Anonymous:         // 4. INSERÇÃO DO ITEM (Onde a sua Trigger trabalha)
+Execute Anonymous:         OrderItem novoItem = new OrderItem(
+Execute Anonymous:             OrderId = ped.Id, Product2Id = prod.Id, Quantity = 1, UnitPrice = 1
+Execute Anonymous:         );
+Execute Anonymous:         insert novoItem;
+Execute Anonymous: 
+Execute Anonymous:         // 5. VERIFICAÇÃO NO LOG
+Execute Anonymous:         OrderItem result = [SELECT MarginPercentage__c, UnitPrice FROM OrderItem WHERE Id = :novoItem.Id];
+Execute Anonymous:         System.debug('--- ✅ SUCESSO NO TESTE ---');
+Execute Anonymous:         System.debug('Margem que a Trigger escolheu: ' + result.MarginPercentage__c + '%');
+Execute Anonymous:         System.debug('Preço final calculado: R$ ' + result.UnitPrice);
+Execute Anonymous:     }
+Execute Anonymous: }
+11:02:39.49 (49605148)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:02:39.49 (49633948)|EXECUTION_STARTED
+11:02:39.49 (49644006)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:02:39.49 (101552037)|USER_DEBUG|[17]|DEBUG|❌ ERRO: Não achei nenhum Pedido pronto com Cidade/CD no banco.
+11:02:39.101 (101648550)|CUMULATIVE_LIMIT_USAGE
+11:02:39.101 (101648550)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 2 out of 100
+  Number of query rows: 1 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 0 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 0 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:02:39.101 (101648550)|CUMULATIVE_LIMIT_USAGE_END
+
+11:02:39.49 (101699203)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:02:39.49 (101712984)|EXECUTION_FINISHED

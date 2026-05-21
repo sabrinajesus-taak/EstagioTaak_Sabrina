@@ -1,0 +1,75 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. Setup de Dados Básicos
+Execute Anonymous: Id idProd = [SELECT Id FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1].Id;
+Execute Anonymous: Id idHiera = [SELECT Id, ProductHierarchy__c FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1].ProductHierarchy__c;
+Execute Anonymous: Id idCid = [SELECT Id FROM City__c WHERE Name = 'São Bernardo Do Campo' LIMIT 1].Id;
+Execute Anonymous: Id idEstSP = [SELECT Id FROM State__c WHERE Name = 'São Paulo' LIMIT 1].Id;
+Execute Anonymous: Id idPais = [SELECT Id FROM Country__c WHERE Name = 'Brasil' LIMIT 1].Id;
+Execute Anonymous: Id idCD = [SELECT Id FROM DistributionCenter__c LIMIT 1].Id;
+Execute Anonymous: 
+Execute Anonymous: // 2. Garantir que temos um SEGUNDO estado para não dar duplicidade no Flow
+Execute Anonymous: State__c outroEstado;
+Execute Anonymous: List<State__c> estadosExistentes = [SELECT Id FROM State__c WHERE Name = 'Paraná' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: if(estadosExistentes.isEmpty()) {
+Execute Anonymous:     outroEstado = new State__c(Name = 'Paraná', StateCode__c = 'PR', Country__c = 'Brasil'); // Ajuste o campo Sigla__c se o nome for outro
+Execute Anonymous:     insert outroEstado;
+Execute Anonymous: } else {
+Execute Anonymous:     outroEstado = estadosExistentes[0];
+Execute Anonymous: }
+Execute Anonymous: Id idEstPR = outroEstado.Id;
+Execute Anonymous: 
+Execute Anonymous: // 3. Limpeza de fretes antigos para o teste ser limpo
+Execute Anonymous: delete [SELECT Id FROM Freight__c WHERE (Product__c = :idProd OR ProductHierarchy__c = :idHiera)];
+Execute Anonymous: 
+Execute Anonymous: // 4. Criação da Escada de 6 Níveis
+Execute Anonymous: List<Freight__c> fretesEscada = new List<Freight__c>();
+Execute Anonymous: 
+Execute Anonymous: // Nível 1: Produto + Cidade (Usa SP)
+Execute Anonymous: fretesEscada.add(new Freight__c(Product__c=idProd, City__c=idCid, State__c=idEstSP, DistributionCenter__c=idCD, FreightValue__c=100, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 2: Produto + Estado (Usa SP)
+Execute Anonymous: fretesEscada.add(new Freight__c(Product__c=idProd, State__c=idEstSP, DistributionCenter__c=idCD, FreightValue__c=200, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 3: Produto + País (Usa PR para a chave do Flow ser diferente do Nível 2)
+Execute Anonymous: fretesEscada.add(new Freight__c(Product__c=idProd, Country__c=idPais, State__c=idEstPR, DistributionCenter__c=idCD, FreightValue__c=300, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 4: Hierarquia + Cidade (Usa SP)
+Execute Anonymous: fretesEscada.add(new Freight__c(ProductHierarchy__c=idHiera, City__c=idCid, State__c=idEstSP, DistributionCenter__c=idCD, FreightValue__c=400, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 5: Hierarquia + Estado (Usa SP)
+Execute Anonymous: fretesEscada.add(new Freight__c(ProductHierarchy__c=idHiera, State__c=idEstSP, DistributionCenter__c=idCD, FreightValue__c=500, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: // Nível 6: Hierarquia + País (Usa PR)
+Execute Anonymous: fretesEscada.add(new Freight__c(ProductHierarchy__c=idHiera, Country__c=idPais, State__c=idEstPR, DistributionCenter__c=idCD, FreightValue__c=600, Status__c='Approved'));
+Execute Anonymous: 
+Execute Anonymous: insert fretesEscada;
+Execute Anonymous: 
+Execute Anonymous: System.debug('✅ SUCESSO: Todos os 6 níveis de frete foram criados!');
+Execute Anonymous: System.debug('ID do Estado criado/usado: ' + idEstPR);
+14:38:15.53 (53797556)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+14:38:15.53 (53822111)|EXECUTION_STARTED
+14:38:15.53 (53835747)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+14:38:15.53 (125560858)|FATAL_ERROR|System.StringException: Invalid id: Brasil
+
+AnonymousBlock: line 14, column 1
+14:38:15.125 (125632088)|CUMULATIVE_LIMIT_USAGE
+14:38:15.125 (125632088)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 7 out of 100
+  Number of query rows: 6 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 0 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 0 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+14:38:15.125 (125632088)|CUMULATIVE_LIMIT_USAGE_END
+
+14:38:15.53 (125673155)|CODE_UNIT_FINISHED|execute_anonymous_apex
+14:38:15.53 (125707710)|EXECUTION_FINISHED

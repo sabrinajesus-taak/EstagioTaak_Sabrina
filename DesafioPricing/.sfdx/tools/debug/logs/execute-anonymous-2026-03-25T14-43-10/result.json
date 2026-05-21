@@ -1,0 +1,10 @@
+{
+  "compiled": true,
+  "success": false,
+  "line": 12,
+  "column": 1,
+  "compileProblem": null,
+  "exceptionMessage": "System.DmlException: Update failed. First exception on row 0 with id 801g80000066bhWAAQ; first error: FIELD_INTEGRITY_EXCEPTION, field integrity exception: Pricebook2Id (cannot change pricebook on order with order items): [Pricebook2Id]",
+  "exceptionStackTrace": "AnonymousBlock: line 12, column 1",
+  "executedAt": "2026-03-25T14:43:10.646Z"
+}

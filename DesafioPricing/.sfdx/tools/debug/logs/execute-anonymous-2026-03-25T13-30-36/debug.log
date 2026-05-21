@@ -1,0 +1,53 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: Id idProduto = [SELECT Id FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1].Id;
+Execute Anonymous: Id idCidade = [SELECT Id FROM City__c WHERE Name = 'São Bernardo Do Campo' LIMIT 1].Id;
+Execute Anonymous: Id idDc = [SELECT Id FROM DistributionCenter__c LIMIT 1].id;
+Execute Anonymous: 
+Execute Anonymous: 
+Execute Anonymous: Margem__c margem1 = new Margem__c(Product__c=idProduto, DistributionCenter__c=idDc, City__c=idCidade, MarginValuePercent__c=10, Status__c='Approved');
+Execute Anonymous: insert margem1;
+Execute Anonymous: 
+Execute Anonymous: try {
+Execute Anonymous:     Margem__c margem2 = new Margem__c(Product__c=idProduto, DistributionCenter__c=idDc, City__c=idCidade, MarginValuePercent__c=20, Status__c='Approved');
+Execute Anonymous:     insert margem2;
+Execute Anonymous:     System.debug('Criou duplicado');
+Execute Anonymous: } catch (Exception e) {
+Execute Anonymous:     System.debug('Não teve duplicidade' + e.getMessage());
+Execute Anonymous: }
+10:30:36.43 (43537084)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+10:30:36.43 (43558826)|EXECUTION_STARTED
+10:30:36.43 (43572759)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+10:30:36.43 (92045629)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+10:30:36.43 (103864710)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+10:30:36.43 (117744373)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+10:30:36.43 (117856539)|CODE_UNIT_FINISHED|Validation:Margem:new
+10:30:36.43 (148259052)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+10:30:36.43 (148292346)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+10:30:36.43 (148329340)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+10:30:36.43 (148334752)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+10:30:36.43 (159270058)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+10:30:36.43 (163027548)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+10:30:36.43 (170142355)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+10:30:36.43 (170198106)|CODE_UNIT_FINISHED|Validation:Margem:new
+10:30:36.43 (192011531)|EXCEPTION_THROWN|[11]|System.DmlException: Insert failed. First exception on row 0; first error: DUPLICATE_VALUE, duplicate value found: MargemCode__c duplicates value on record with id: a00g800000Day1NAAR: []
+10:30:36.43 (193986573)|USER_DEBUG|[14]|DEBUG|Não teve duplicidadeInsert failed. First exception on row 0; first error: DUPLICATE_VALUE, duplicate value found: MargemCode__c duplicates value on record with id: a00g800000Day1NAAR: []
+10:30:36.259 (259605555)|CUMULATIVE_LIMIT_USAGE
+10:30:36.259 (259605555)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 3 out of 100
+  Number of query rows: 3 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 2 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 2 out of 10000
+  Maximum CPU time: 21 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+10:30:36.259 (259605555)|CUMULATIVE_LIMIT_USAGE_END
+
+10:30:36.43 (259665284)|CODE_UNIT_FINISHED|execute_anonymous_apex
+10:30:36.43 (259682902)|EXECUTION_FINISHED

@@ -1,0 +1,79 @@
+{
+  "summary": {
+    "outcome": "Failed",
+    "testsRan": 2,
+    "passing": 0,
+    "failing": 2,
+    "skipped": 0,
+    "passRate": "0%",
+    "failRate": "100%",
+    "skipRate": "0%",
+    "testStartTime": "2026-04-10T16:45:05.000Z",
+    "testSetupTimeInMs": 1137,
+    "testExecutionTimeInMs": 0,
+    "testTotalTimeInMs": 1137,
+    "commandTimeInMs": 253,
+    "hostname": "https://resourceful-moose-fmmd11-dev-ed.trailblaze.my.salesforce.com",
+    "orgId": "00Dg8000001b33BEAQ",
+    "username": "sabrina.jesus@resourceful-moose-fmmd11.com",
+    "testRunId": "707g800000882bo",
+    "userId": "005g80000010N45AAE"
+  },
+  "tests": [
+    {
+      "id": "07Mg80000010EdXEAU",
+      "queueItemId": "709g8000002CplZAAS",
+      "stackTrace": "Class.OrderItemHandlerTest.setup: line 49, column 1",
+      "message": "System.DmlException: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Erro de Cadastro: Todo frete precisa ter um Centro de Distribuição, Status e Valor definidos.: []",
+      "asyncApexJobId": "707g800000882boAAA",
+      "methodName": "pricingOrderItemTest",
+      "outcome": "Fail",
+      "apexLogId": null,
+      "apexClass": {
+        "id": "01pg8000001w1MbAAI",
+        "name": "OrderItemHandlerTest",
+        "namespacePrefix": null,
+        "fullName": "OrderItemHandlerTest"
+      },
+      "runTime": 0,
+      "testTimestamp": "2026-04-10T16:45:07.000+0000",
+      "fullName": "OrderItemHandlerTest.pricingOrderItemTest",
+      "diagnostic": {
+        "exceptionMessage": "System.DmlException: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Erro de Cadastro: Todo frete precisa ter um Centro de Distribuição, Status e Valor definidos.: []",
+        "exceptionStackTrace": "Class.OrderItemHandlerTest.setup: line 49, column 1",
+        "className": "OrderItemHandlerTest",
+        "compileProblem": "",
+        "lineNumber": 49,
+        "columnNumber": 1
+      },
+      "category": "Apex"
+    }
+  ],
+  "setup": [
+    {
+      "id": "07Mg80000010EdWEAU",
+      "stackTrace": "Class.OrderItemHandlerTest.setup: line 49, column 1",
+      "message": "System.DmlException: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Erro de Cadastro: Todo frete precisa ter um Centro de Distribuição, Status e Valor definidos.: []",
+      "asyncApexJobId": "707g800000882boAAA",
+      "methodName": "setup",
+      "apexLogId": "07Lg8000001SX25EAG",
+      "apexClass": {
+        "id": "01pg8000001w1MbAAI",
+        "name": "OrderItemHandlerTest",
+        "namespacePrefix": null,
+        "fullName": "OrderItemHandlerTest"
+      },
+      "testSetupTime": 1137,
+      "testTimestamp": "2026-04-10T16:45:05.000+0000",
+      "fullName": "OrderItemHandlerTest.setup",
+      "diagnostic": {
+        "exceptionMessage": "System.DmlException: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Erro de Cadastro: Todo frete precisa ter um Centro de Distribuição, Status e Valor definidos.: []",
+        "exceptionStackTrace": "Class.OrderItemHandlerTest.setup: line 49, column 1",
+        "className": "OrderItemHandlerTest",
+        "compileProblem": "",
+        "lineNumber": 49,
+        "columnNumber": 1
+      }
+    }
+  ]
+}

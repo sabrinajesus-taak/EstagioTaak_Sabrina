@@ -1,0 +1,10 @@
+{
+  "compiled": true,
+  "success": false,
+  "line": 37,
+  "column": 1,
+  "compileProblem": null,
+  "exceptionMessage": "System.DmlException: Insert failed. First exception on row 1; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Você deve informar um Produto OU uma Hierarquia de Produto, mas nunca os dois ao mesmo tempo ou nenhum deles.: []",
+  "exceptionStackTrace": "AnonymousBlock: line 37, column 1",
+  "executedAt": "2026-03-25T14:16:15.262Z"
+}

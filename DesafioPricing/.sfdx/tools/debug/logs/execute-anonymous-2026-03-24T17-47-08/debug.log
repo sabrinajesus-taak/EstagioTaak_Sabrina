@@ -1,0 +1,66 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: Id idP = [SELECT Id FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1].Id;
+Execute Anonymous: Id idC = [SELECT Id FROM City__c WHERE Name = 'São Bernardo Do Campo' LIMIT 1].Id;
+Execute Anonymous: Id idE = [SELECT Id FROM State__c WHERE Name = 'São Paulo' LIMIT 1].Id;
+Execute Anonymous: Id idPa = [SELECT Id FROM Country__c WHERE Name = 'Brasil' LIMIT 1].Id;
+Execute Anonymous: Id idD = [SELECT Id FROM DistributionCenter__c LIMIT 1].Id;
+Execute Anonymous: 
+Execute Anonymous: delete [SELECT Id FROM Freight__c WHERE Product__c = :idP];
+Execute Anonymous: 
+Execute Anonymous: // Criando os registros
+Execute Anonymous: Freight__c fCid = new Freight__c(Product__c=idP, City__c=idC, State__c=idE, DistributionCenter__c=idD, FreightValue__c=450, Status__c='Approved'); //cidade
+Execute Anonymous: Freight__c fEst = new Freight__c(Product__c=idP, State__c=idE, DistributionCenter__c=idD, FreightValue__c=1200, Status__c='Approved'); //estado
+Execute Anonymous: Freight__c fPai = new Freight__c(Product__c=idP, Country__c=idPa, State__c=idE, DistributionCenter__c=idD, FreightValue__c=2500, Status__c='Approved'); //pais
+Execute Anonymous: insert new List<Freight__c>{fCid, fEst, fPai};
+Execute Anonymous: 
+Execute Anonymous: // --- TESTE 1: PRIORIDADE MÁXIMA ---
+Execute Anonymous: System.debug('>>> BUSCA 1 (CIDADE): R$ ' + [SELECT FreightValue__c FROM Freight__c WHERE Product__c=:idP AND City__c=:idC LIMIT 1].FreightValue__c);
+Execute Anonymous: 
+Execute Anonymous: // --- TESTE 2: REMOVE CIDADE, SOBRA ESTADO E PAÍS ---
+Execute Anonymous: delete fCid;
+Execute Anonymous: System.debug('>>> BUSCA 2 (ESTADO VS PAÍS): R$ ' + [SELECT FreightValue__c FROM Freight__c WHERE Product__c=:idP AND State__c=:idE AND City__c=null LIMIT 1].FreightValue__c);
+Execute Anonymous: 
+Execute Anonymous: // --- TESTE 3: REMOVE ESTADO, SOBRA SÓ PAÍS ---
+Execute Anonymous: delete fEst;
+Execute Anonymous: System.debug('>>> BUSCA 3 (NÍVEL GERAL): R$ ' + [SELECT FreightValue__c FROM Freight__c WHERE Product__c=:idP AND Country__c=:idPa AND State__c=:idE LIMIT 1].FreightValue__c);
+14:47:07.46 (46261070)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+14:47:07.46 (46294622)|EXECUTION_STARTED
+14:47:07.46 (46314701)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+14:47:07.46 (114615729)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:47:07.46 (114664290)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:47:07.46 (344688193)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:47:07.46 (355553244)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:47:07.46 (367599063)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:47:07.46 (367709188)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:47:07.46 (367719937)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:47:07.46 (367744789)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:47:07.46 (367749612)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:47:07.46 (367763662)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:47:07.46 (403119532)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:47:07.46 (403151611)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:47:07.46 (403187889)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:47:07.46 (403195325)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:47:07.46 (404741507)|EXCEPTION_THROWN|[13]|System.DmlException: Insert failed. First exception on row 2; first error: DUPLICATE_VALUE, duplicate value found: FreightCode__c duplicates value on record with id: a0Ag8000000P5XdEAK: []
+14:47:07.46 (405339363)|FATAL_ERROR|System.DmlException: Insert failed. First exception on row 2; first error: DUPLICATE_VALUE, duplicate value found: FreightCode__c duplicates value on record with id: a0Ag8000000P5XdEAK: []
+
+AnonymousBlock: line 13, column 1
+14:47:07.405 (405366327)|CUMULATIVE_LIMIT_USAGE
+14:47:07.405 (405366327)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 6 out of 100
+  Number of query rows: 6 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 2 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 4 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+14:47:07.405 (405366327)|CUMULATIVE_LIMIT_USAGE_END
+
+14:47:07.46 (405436237)|CODE_UNIT_FINISHED|execute_anonymous_apex
+14:47:07.46 (405448234)|EXECUTION_FINISHED

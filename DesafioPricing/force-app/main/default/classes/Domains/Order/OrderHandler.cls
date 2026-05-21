@@ -13,11 +13,19 @@ public class OrderHandler extends TriggerHandler {
         this.oldRecordsMap = (Map<Id, Order>) Trigger.oldMap;
     }
     
+    public override void beforeInsert() {
+        setDefaultStatus();
+    }
+    
     public override void beforeUpdate(){
+        validateStatusOrders();
+        validateOrderItems();
         checkActiveOrder();
+        //ainda preciso do checkActive order? atualiza ele para os novos status
     }
     
     public override void afterUpdate() {
+        sendOfOrders();
         checkActiveOrder();
         itemsRecalculation();
     }
@@ -26,26 +34,36 @@ public class OrderHandler extends TriggerHandler {
         checkActiveOrder();
     }
     
+    private void setDefaultStatus() {
+        
+        for(Order iOrder : newRecords) {
+            
+            if(String.isBlank(iOrder.Status)) {
+                iOrder.Status = 'New';
+            }
+        }
+    }
+    
     //metodo para bloquear a mudança de CD/Endereço/Data/Conta se o pedido estiver ativo.
     public void checkActiveOrder() {
-        List<Order> listaParaValidar;
+        List<Order> listToValidate;
         
         if (Trigger.isDelete) {
-            listaParaValidar = oldRecords; //usa os registros antigos
+            listToValidate = oldRecords; //usa os registros antigos
         } else {
-            listaParaValidar = newRecords; //se não estuver deletando usa os novos
+            listToValidate = newRecords; //se não estuver deletando usa os novos
         }
         
         
-        for(Order pedido: listaParaValidar) {
+        for(Order iOrder: listToValidate) {
             //recupera a versão anterior para verificação
-            Order pedidoAntigo = (oldRecordsMap != null) ? oldRecordsMap.get(pedido.Id) : null;
+            Order oldOrder = (oldRecordsMap != null) ? oldRecordsMap.get(iOrder.Id) : null;
             
             //identifica o status de origem
-            String validacaoStatus = (pedidoAntigo != null) ? pedidoAntigo.Status : pedido.Status;
+            String validationStatus = (oldOrder != null) ? oldOrder.Status : iOrder.Status;
             
-            if (validacaoStatus != 'Draft') {
-                pedido.addError('Não é possivel fazer qualquer atualização do PEDIDO após este pedido estar Ativo.');
+            if (validationStatus == 'Approved') {
+                        iOrder.addError('Não é possivel fazer qualquer atualização do PEDIDO após este pedido ser aprovado.');
             }
         }
     }
@@ -54,22 +72,80 @@ public class OrderHandler extends TriggerHandler {
     private void itemsRecalculation() {
         Set<Id> ordersToRecalculate = new Set<Id>();
         
-        for (Order pedido : newRecords) {
-            Order pedidoAntigo = oldRecordsMap.get(pedido.Id);
+        for (Order iOrder : newRecords) {
+            Order oldOrder = oldRecordsMap.get(iOrder.Id);
             
-            if (pedido.City__c != pedidoAntigo.City__c ||
-                pedido.State__c != pedidoAntigo.State__c ||
-            pedido.Country__c != pedidoAntigo.Country__c) {
-                ordersToRecalculate.add(pedido.Id);
+            if (iOrder.City__c != oldOrder.City__c ||
+                iOrder.State__c != oldOrder.State__c ||
+            iOrder.Country__c != oldOrder.Country__c) {
+                ordersToRecalculate.add(iOrder.Id);
             }
         }
         
         if (!ordersToRecalculate.isEmpty()) {
-            List<OrderItem> itens = OrderItemSelector.getByOrderIds(ordersToRecalculate);
+            List<OrderItem> items = OrderItemSelector.getByOrderIds(ordersToRecalculate);
             
-            if (!itens.isEmpty()) {
-                update itens;
+            if (!items.isEmpty()) {
+                update items;
             }
         }
+    }
+    
+    //method to send orders to Livia
+    private void sendOfOrders(){
+        List<Id> ordersToSend = new List<Id>();
+        
+        for (Order iOrder : newRecords) {
+            Order oldOrder = oldRecordsMap.get(iOrder.Id);
+            
+            if (iOrder.Status == 'Approved' && oldOrder.Status != 'Approved') {
+                ordersToSend.add(iOrder.Id);
+            }
+        }
+        
+        if (!ordersToSend.isEmpty()) {
+            CalloutOrderFuture.sendOrders(ordersToSend);
+        }
+    }
+    
+    private void validateStatusOrders() {
+        for(Order iOrder : newRecords){
+            Order oldOrder = oldRecordsMap.get(iOrder.Id);
+            
+            if(iOrder.Status != oldOrder.Status){
+                if(oldOrder.status != 'New' || iOrder.Status != 'PendingApproval'){
+                    iOrder.Status.addError('A única mudança de status permitida é de Novo para Em aprovação.');
+                }
+            }
+        }
+    }
+    
+    private void validateOrderItems(){
+        List<Id> ordersIds = new List<Id>();
+        
+        for (Order iOrder : newRecords) {
+            Order oldOrder = oldRecordsMap.get(iOrder.Id);
+            
+            if (iOrder.Status == 'PendingApproval' && oldOrder.Status != 'PendingApproval') {
+                ordersIds.add(iOrder.Id);
+            }
+        }
+        
+        if(ordersIds.isEmpty()) return;
+        
+        Set<Id> ordersWithItems = new Set<Id>();
+
+        for(OrderItem item : [
+        SELECT Id, OrderId
+        FROM OrderItem
+        WHERE OrderId IN :ordersIds]) {
+            ordersWithItems.add(item.OrderId);
+        }
+        for (Order iOrder : newRecords){
+            if(ordersIds.contains(iOrder.Id) && !ordersWithItems.contains(iOrder.Id)){
+                iOrder.Status.addError('O PEDIDO precisa possuir pelo menos um produto.');
+            }
+        }
+        
     }
 }

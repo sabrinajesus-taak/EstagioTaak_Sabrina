@@ -1,0 +1,79 @@
+{
+  "summary": {
+    "outcome": "Failed",
+    "testsRan": 2,
+    "passing": 0,
+    "failing": 2,
+    "skipped": 0,
+    "passRate": "0%",
+    "failRate": "100%",
+    "skipRate": "0%",
+    "testStartTime": "2026-04-10T16:46:51.000Z",
+    "testSetupTimeInMs": 1228,
+    "testExecutionTimeInMs": 0,
+    "testTotalTimeInMs": 1228,
+    "commandTimeInMs": 295,
+    "hostname": "https://resourceful-moose-fmmd11-dev-ed.trailblaze.my.salesforce.com",
+    "orgId": "00Dg8000001b33BEAQ",
+    "username": "sabrina.jesus@resourceful-moose-fmmd11.com",
+    "testRunId": "707g800000881j7",
+    "userId": "005g80000010N45AAE"
+  },
+  "tests": [
+    {
+      "id": "07Mg800000102zwEAA",
+      "queueItemId": "709g8000002CpyvAAC",
+      "stackTrace": "Class.OrderItemHandlerTest.setup: line 58, column 1",
+      "message": "System.DmlException: Insert failed. First exception on row 0; first error: REQUIRED_FIELD_MISSING, Required fields are missing: [DistributionCenter__c, Status__c]: [DistributionCenter__c, Status__c]",
+      "asyncApexJobId": "707g800000881j7AAA",
+      "methodName": "pricingOrderItemTest",
+      "outcome": "Fail",
+      "apexLogId": null,
+      "apexClass": {
+        "id": "01pg8000001w1MbAAI",
+        "name": "OrderItemHandlerTest",
+        "namespacePrefix": null,
+        "fullName": "OrderItemHandlerTest"
+      },
+      "runTime": 0,
+      "testTimestamp": "2026-04-10T16:46:52.000+0000",
+      "fullName": "OrderItemHandlerTest.pricingOrderItemTest",
+      "diagnostic": {
+        "exceptionMessage": "System.DmlException: Insert failed. First exception on row 0; first error: REQUIRED_FIELD_MISSING, Required fields are missing: [DistributionCenter__c, Status__c]: [DistributionCenter__c, Status__c]",
+        "exceptionStackTrace": "Class.OrderItemHandlerTest.setup: line 58, column 1",
+        "className": "OrderItemHandlerTest",
+        "compileProblem": "",
+        "lineNumber": 58,
+        "columnNumber": 1
+      },
+      "category": "Apex"
+    }
+  ],
+  "setup": [
+    {
+      "id": "07Mg800000102zvEAA",
+      "stackTrace": "Class.OrderItemHandlerTest.setup: line 58, column 1",
+      "message": "System.DmlException: Insert failed. First exception on row 0; first error: REQUIRED_FIELD_MISSING, Required fields are missing: [DistributionCenter__c, Status__c]: [DistributionCenter__c, Status__c]",
+      "asyncApexJobId": "707g800000881j7AAA",
+      "methodName": "setup",
+      "apexLogId": "07Lg8000001SMI4EAO",
+      "apexClass": {
+        "id": "01pg8000001w1MbAAI",
+        "name": "OrderItemHandlerTest",
+        "namespacePrefix": null,
+        "fullName": "OrderItemHandlerTest"
+      },
+      "testSetupTime": 1228,
+      "testTimestamp": "2026-04-10T16:46:51.000+0000",
+      "fullName": "OrderItemHandlerTest.setup",
+      "diagnostic": {
+        "exceptionMessage": "System.DmlException: Insert failed. First exception on row 0; first error: REQUIRED_FIELD_MISSING, Required fields are missing: [DistributionCenter__c, Status__c]: [DistributionCenter__c, Status__c]",
+        "exceptionStackTrace": "Class.OrderItemHandlerTest.setup: line 58, column 1",
+        "className": "OrderItemHandlerTest",
+        "compileProblem": "",
+        "lineNumber": 58,
+        "columnNumber": 1
+      }
+    }
+  ]
+}

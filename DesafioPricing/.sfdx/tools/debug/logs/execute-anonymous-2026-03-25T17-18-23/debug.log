@@ -1,0 +1,109 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. CARREGAR CONTEXTO DO PEDIDO
+Execute Anonymous: Order ped = [SELECT Id, AccountId, City__c, State__c, DistributionCenter__c 
+Execute Anonymous:              FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: OrderItem item = [SELECT Id, Product2Id FROM OrderItem 
+Execute Anonymous:                  WHERE OrderId = :ped.Id AND Product2.Name LIKE '%Colheitadeira%' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 2. PREPARAR CENÁRIO DE PRICING (LIMPANDO DADOS ANTIGOS)
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: delete [SELECT Id FROM Freight__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: 
+Execute Anonymous: // 3. INSERIR PARÂMETROS (ISSO VALIDA OS SEUS "IFS" E REGRAS DE NEGÓCIO)
+Execute Anonymous: insert new Margem__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     Account__c = ped.AccountId,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     State__c = ped.State__c,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:     MarginValuePercent__c = 45,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: insert new Freight__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     State__c = ped.State__c,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:     FreightValue__c = 50.00,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 4. EXECUÇÃO DO CÁLCULO VIA TRIGGER
+Execute Anonymous: update item;
+Execute Anonymous: 
+Execute Anonymous: // 5. EXIBIÇÃO DOS RESULTADOS PARA AUDITORIA
+Execute Anonymous: OrderItem res = [SELECT MarginPercentage__c, FreightValue__c, UnitPrice FROM OrderItem WHERE Id = :item.Id];
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- RELATÓRIO DE AUDITORIA DE PREÇO ---');
+Execute Anonymous: System.debug('MARGEM IDENTIFICADA: ' + res.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('FRETE IDENTIFICADO: R$ ' + res.FreightValue__c);
+Execute Anonymous: System.debug('VALOR UNITÁRIO FINAL: R$ ' + res.UnitPrice);
+14:18:22.41 (41999150)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+14:18:22.41 (42021126)|EXECUTION_STARTED
+14:18:22.41 (42029428)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+14:18:22.41 (109078987)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:18:22.41 (109107808)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:18:22.41 (322410198)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:18:22.41 (322454434)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:18:22.41 (390142497)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:18:22.41 (399425372)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:18:22.41 (412467575)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+14:18:22.41 (412538354)|CODE_UNIT_FINISHED|Validation:Margem:new
+14:18:22.41 (431186674)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:18:22.41 (431206699)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:18:22.41 (431234691)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:18:22.41 (431240413)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:18:22.41 (439061608)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:18:22.41 (443627563)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:18:22.41 (452629869)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:18:22.41 (452692852)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:18:22.41 (468492254)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:18:22.41 (468513782)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:18:22.41 (468539867)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:18:22.41 (468545747)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:18:22.41 (557758408)|CODE_UNIT_STARTED|[EXTERNAL]|01qg8000000Fou9|OrdemItemTrigger on OrderItem trigger event BeforeUpdate|__sfdc_trigger/OrdemItemTrigger
+14:18:22.616 (616979874)|CUMULATIVE_LIMIT_USAGE
+14:18:22.616 (616979874)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 10 out of 100
+  Number of query rows: 13 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 5 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 5 out of 10000
+  Maximum CPU time: 93 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+14:18:22.616 (616979874)|CUMULATIVE_LIMIT_USAGE_END
+
+14:18:22.41 (618349706)|CODE_UNIT_FINISHED|OrdemItemTrigger on OrderItem trigger event BeforeUpdate|__sfdc_trigger/OrdemItemTrigger
+14:18:22.41 (668924621)|USER_DEBUG|[38]|DEBUG|--- RELATÓRIO DE AUDITORIA DE PREÇO ---
+14:18:22.41 (669040483)|USER_DEBUG|[39]|DEBUG|MARGEM IDENTIFICADA: 45.00%
+14:18:22.41 (669062618)|USER_DEBUG|[40]|DEBUG|FRETE IDENTIFICADO: R$ 50.00
+14:18:22.41 (669092069)|USER_DEBUG|[41]|DEBUG|VALOR UNITÁRIO FINAL: R$ 162.40
+14:18:22.710 (710033549)|CUMULATIVE_LIMIT_USAGE
+14:18:22.710 (710033549)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 11 out of 100
+  Number of query rows: 14 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 5 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 5 out of 10000
+  Maximum CPU time: 93 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+14:18:22.710 (710033549)|CUMULATIVE_LIMIT_USAGE_END
+
+14:18:22.41 (710092640)|CODE_UNIT_FINISHED|execute_anonymous_apex
+14:18:22.41 (710109456)|EXECUTION_FINISHED

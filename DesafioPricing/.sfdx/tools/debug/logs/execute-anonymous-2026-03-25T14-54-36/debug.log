@@ -1,0 +1,73 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. DADOS DO PEDIDO
+Execute Anonymous: Order ped = [SELECT Id, DistributionCenter__c, City__c, AccountId FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: OrderItem item = [SELECT Id, Product2Id FROM OrderItem WHERE OrderId = :ped.Id LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 2. LIMPEZA TOTAL
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: 
+Execute Anonymous: // 3. CRIA A MARGEM (Apenas com o que você REALMENTE tem)
+Execute Anonymous: Margem__c m1 = new Margem__c();
+Execute Anonymous: m1.Product__c = item.Product2Id;
+Execute Anonymous: m1.Account__c = ped.AccountId; // Incluí a conta por via das dúvidas
+Execute Anonymous: m1.DistributionCenter__c = ped.DistributionCenter__c;
+Execute Anonymous: m1.City__c = ped.City__c;
+Execute Anonymous: m1.MarginValuePercent__c = 45;
+Execute Anonymous: m1.Status__c = 'Approved'; // Verifique se no seu objeto é 'Approved' ou 'Aprovado'
+Execute Anonymous: insert m1;
+Execute Anonymous: 
+Execute Anonymous: // 4. VERIFICAÇÃO MANUAL (O SELECT que a Trigger deveria fazer)
+Execute Anonymous: Margem__c conferencia = [SELECT Id, Product__c, City__c, DistributionCenter__c, Status__c 
+Execute Anonymous:                          FROM Margem__c WHERE Id = :m1.Id];
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- 🔍 CONFERINDO A MARGEM CRIADA ---');
+Execute Anonymous: System.debug('Produto na Margem: ' + conferencia.Product__c);
+Execute Anonymous: System.debug('Cidade na Margem: ' + conferencia.City__c);
+Execute Anonymous: System.debug('Status na Margem: ' + conferencia.Status__c);
+Execute Anonymous: 
+Execute Anonymous: // 5. UPDATE PARA TESTAR A TRIGGER
+Execute Anonymous: update item;
+Execute Anonymous: 
+Execute Anonymous: // 6. RESULTADO
+Execute Anonymous: OrderItem res = [SELECT MarginPercentage__c, UnitPrice FROM OrderItem WHERE Id = :item.Id];
+Execute Anonymous: System.debug('--- 🏆 RESULTADO FINAL ---');
+Execute Anonymous: System.debug('Margem no Item: ' + res.MarginPercentage__c + '%');
+11:54:35.29 (29422448)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:54:35.29 (29456058)|EXECUTION_STARTED
+11:54:35.29 (29492386)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:54:35.29 (73089724)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:54:35.29 (73125479)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:54:35.29 (277179050)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:54:35.29 (295362552)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:54:35.29 (309533584)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+11:54:35.29 (309666280)|CODE_UNIT_FINISHED|Validation:Margem:new
+11:54:35.29 (328914901)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:54:35.29 (328942884)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:54:35.29 (328969429)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:54:35.29 (328984826)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:54:35.29 (345183692)|USER_DEBUG|[22]|DEBUG|--- 🔍 CONFERINDO A MARGEM CRIADA ---
+11:54:35.29 (345366865)|USER_DEBUG|[23]|DEBUG|Produto na Margem: 01tg8000000nFcDAAU
+11:54:35.29 (345426360)|USER_DEBUG|[24]|DEBUG|Cidade na Margem: a05g8000001KAc9AAG
+11:54:35.29 (345452969)|USER_DEBUG|[25]|DEBUG|Status na Margem: Approved
+11:54:35.29 (481027753)|USER_DEBUG|[32]|DEBUG|--- 🏆 RESULTADO FINAL ---
+11:54:35.29 (481122068)|USER_DEBUG|[33]|DEBUG|Margem no Item: null%
+11:54:35.516 (516261988)|CUMULATIVE_LIMIT_USAGE
+11:54:35.516 (516261988)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 5 out of 100
+  Number of query rows: 5 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 3 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 3 out of 10000
+  Maximum CPU time: 62 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:54:35.516 (516261988)|CUMULATIVE_LIMIT_USAGE_END
+
+11:54:35.29 (516348643)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:54:35.29 (516372493)|EXECUTION_FINISHED

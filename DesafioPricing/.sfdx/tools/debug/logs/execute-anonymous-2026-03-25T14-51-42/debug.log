@@ -1,0 +1,63 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. PEGA OS IDS REAIS DO SEU PEDIDO (Direto da fonte)
+Execute Anonymous: Order ped = [SELECT Id, DistributionCenter__c, City__c FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: OrderItem item = [SELECT Id, Product2Id FROM OrderItem WHERE OrderId = :ped.Id LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 2. LIMPA TUDO PARA NÃO TER RUÍDO
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: 
+Execute Anonymous: // 3. CRIA A MARGEM COPIANDO OS IDS DO PEDIDO (O "DNA" idêntico)
+Execute Anonymous: Margem__c m1 = new Margem__c();
+Execute Anonymous: m1.Product__c = item.Product2Id;
+Execute Anonymous: m1.DistributionCenter__c = ped.DistributionCenter__c; // ID EXATO DO PEDIDO
+Execute Anonymous: m1.City__c = ped.City__c;                             // ID EXATO DO PEDIDO
+Execute Anonymous: m1.MarginValuePercent__c = 45;
+Execute Anonymous: m1.Status__c = 'Approved';
+Execute Anonymous: insert m1;
+Execute Anonymous: 
+Execute Anonymous: // 4. DÁ O "UPDATE" PARA DISPARAR A TRIGGER
+Execute Anonymous: update item;
+Execute Anonymous: 
+Execute Anonymous: // 5. O VEREDITO
+Execute Anonymous: OrderItem res = [SELECT MarginPercentage__c, UnitPrice FROM OrderItem WHERE Id = :item.Id];
+Execute Anonymous: System.debug('--- 🧐 ANALISANDO OS IDS ---');
+Execute Anonymous: System.debug('ID do CD no Pedido: ' + ped.DistributionCenter__c);
+Execute Anonymous: System.debug('ID da Cidade no Pedido: ' + ped.City__c);
+Execute Anonymous: System.debug('RESULTADO FINAL - Margem: ' + res.MarginPercentage__c + '%');
+11:51:41.45 (45003713)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:51:41.45 (45029308)|EXECUTION_STARTED
+11:51:41.45 (45047691)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:51:41.45 (119513434)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:51:41.45 (119572948)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:51:41.45 (360266759)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:51:41.45 (371330415)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:51:41.45 (383290098)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+11:51:41.45 (383361596)|CODE_UNIT_FINISHED|Validation:Margem:new
+11:51:41.45 (405623891)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:51:41.45 (405647712)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:51:41.45 (405675700)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:51:41.45 (405682654)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:51:41.45 (574237474)|USER_DEBUG|[22]|DEBUG|--- 🧐 ANALISANDO OS IDS ---
+11:51:41.45 (574360764)|USER_DEBUG|[23]|DEBUG|ID do CD no Pedido: a06g8000000wkLpAAI
+11:51:41.45 (574380289)|USER_DEBUG|[24]|DEBUG|ID da Cidade no Pedido: a05g8000001KAc9AAG
+11:51:41.45 (574403644)|USER_DEBUG|[25]|DEBUG|RESULTADO FINAL - Margem: null%
+11:51:41.612 (612760824)|CUMULATIVE_LIMIT_USAGE
+11:51:41.612 (612760824)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 4 out of 100
+  Number of query rows: 4 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 3 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 3 out of 10000
+  Maximum CPU time: 66 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:51:41.612 (612760824)|CUMULATIVE_LIMIT_USAGE_END
+
+11:51:41.45 (612825173)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:51:41.45 (612846471)|EXECUTION_FINISHED

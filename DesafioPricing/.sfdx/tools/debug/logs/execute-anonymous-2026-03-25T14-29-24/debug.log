@@ -1,0 +1,85 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. SETUP DO PRODUTO E PEDIDO (Usando o que você já tem na Org)
+Execute Anonymous: Product2 prod = [SELECT Id, ProductHierarchy__c FROM Product2 WHERE Name = 'GenWatt Diesel 1000kW' LIMIT 1];
+Execute Anonymous: Order ped = [SELECT Id, AccountId, City__c, State__c, DistributionCenter__c, Pricebook2Id 
+Execute Anonymous:              FROM Order WHERE OrderNumber = '00000100' LIMIT 1]; 
+Execute Anonymous: 
+Execute Anonymous: PricebookEntry pbe = [SELECT Id, UnitPrice FROM PricebookEntry 
+Execute Anonymous:                       WHERE Product2Id = :prod.Id AND Pricebook2Id = :ped.Pricebook2Id LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: Account acc = [SELECT Id, AccountGroup__c FROM Account WHERE Id = :ped.AccountId];
+Execute Anonymous: 
+Execute Anonymous: // 2. LIMPEZA (Para o teste ser 100% confiável)
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :prod.Id OR ProductHierarchy__c = :prod.ProductHierarchy__c];
+Execute Anonymous: 
+Execute Anonymous: // 3. CRIANDO A MARGEM (Aprovada e Específica)
+Execute Anonymous: Margem__c m1 = new Margem__c();
+Execute Anonymous: m1.Product__c = prod.Id;
+Execute Anonymous: m1.Account__c = acc.Id;
+Execute Anonymous: m1.City__c = ped.City__c;
+Execute Anonymous: m1.DistributionCenter__c = ped.DistributionCenter__c;
+Execute Anonymous: m1.MarginValuePercent__c = 45; // Valor que queremos ver no resultado
+Execute Anonymous: m1.Status__c = 'Approved';
+Execute Anonymous: insert m1; 
+Execute Anonymous: 
+Execute Anonymous: // 4. INSERÇÃO DO ITEM (Onde a Trigger faz o cálculo)
+Execute Anonymous: OrderItem novoItem = new OrderItem(
+Execute Anonymous:     OrderId = ped.Id, 
+Execute Anonymous:     Product2Id = prod.Id, 
+Execute Anonymous:     PricebookEntryId = pbe.Id,
+Execute Anonymous:     Quantity = 1, 
+Execute Anonymous:     UnitPrice = pbe.UnitPrice
+Execute Anonymous: );
+Execute Anonymous: insert novoItem;
+Execute Anonymous: 
+Execute Anonymous: // 5. VERIFICAÇÃO FINAL (Usando o nome correto: MarginPercentage__c)
+Execute Anonymous: OrderItem result = [SELECT Id, MarginPercentage__c, UnitPrice, FreightValue__c 
+Execute Anonymous:                    FROM OrderItem 
+Execute Anonymous:                    WHERE Id = :novoItem.Id];
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- 🏆 RESULTADO DO DESAFIO ---');
+Execute Anonymous: System.debug('Margem aplicada no Item: ' + result.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Preço Final Calculado: R$ ' + result.UnitPrice);
+Execute Anonymous: 
+Execute Anonymous: if(result.MarginPercentage__c == 45) {
+Execute Anonymous:     System.debug('✅ SUCESSO! A lógica de priorização funcionou!');
+Execute Anonymous: } else {
+Execute Anonymous:     System.debug('❌ A margem veio: ' + result.MarginPercentage__c + '. Verifique se a cidade do Pedido (' + ped.City__c + ') é a mesma da Margem.');
+Execute Anonymous: }
+11:29:23.46 (46413838)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:29:23.46 (46432580)|EXECUTION_STARTED
+11:29:23.46 (46441449)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:29:23.46 (110796110)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:29:23.46 (110825024)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:29:23.46 (318586716)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:29:23.46 (335088758)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:29:23.46 (345945201)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+11:29:23.46 (346024962)|CODE_UNIT_FINISHED|Validation:Margem:new
+11:29:23.46 (365796670)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:29:23.46 (365823208)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:29:23.46 (365853485)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:29:23.46 (365860660)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:29:23.46 (554218983)|USER_DEBUG|[39]|DEBUG|--- 🏆 RESULTADO DO DESAFIO ---
+11:29:23.46 (554486349)|USER_DEBUG|[40]|DEBUG|Margem aplicada no Item: null%
+11:29:23.46 (554586422)|USER_DEBUG|[41]|DEBUG|Preço Final Calculado: R$ 100000.00
+11:29:23.46 (554632283)|USER_DEBUG|[46]|DEBUG|❌ A margem veio: null. Verifique se a cidade do Pedido (a05g8000001KAc9AAG) é a mesma da Margem.
+11:29:23.598 (598127515)|CUMULATIVE_LIMIT_USAGE
+11:29:23.598 (598127515)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 6 out of 100
+  Number of query rows: 6 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 3 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 3 out of 10000
+  Maximum CPU time: 68 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:29:23.598 (598127515)|CUMULATIVE_LIMIT_USAGE_END
+
+11:29:23.46 (598205769)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:29:23.46 (598239112)|EXECUTION_FINISHED

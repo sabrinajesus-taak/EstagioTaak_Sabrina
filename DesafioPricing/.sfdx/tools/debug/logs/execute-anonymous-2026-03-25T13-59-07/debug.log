@@ -1,0 +1,93 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: Product2 prod = [SELECT Id, ProductHierarchy__c FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1];
+Execute Anonymous: Id idCD = [SELECT Id FROM DistributionCenter__c LIMIT 1].Id;
+Execute Anonymous: Id idCity = [SELECT Id FROM City__c LIMIT 1].Id;
+Execute Anonymous: Id idState = [SELECT Id FROM State__c LIMIT 1].Id;
+Execute Anonymous: Id idAccountG = [SELECT Id From AccountGroup__c LIMIT 1].Id;
+Execute Anonymous: 
+Execute Anonymous: // criação da conta e pedido novo
+Execute Anonymous: Account acc = new Account(Name = 'Cliente Teste Margem', CNPJ__c = '00011', AccountGroup__c = idAccountG); 
+Execute Anonymous: insert acc;
+Execute Anonymous: 
+Execute Anonymous: Order ped = new Order(
+Execute Anonymous:     AccountId = acc.Id, 
+Execute Anonymous:     EffectiveDate = Date.today(), 
+Execute Anonymous:     Status = 'Draft', 
+Execute Anonymous:     Pricebook2Id = Test.getStandardPricebookId(), // Garante que o pedido aceite itens
+Execute Anonymous:     DistributionCenter__c = idCD,
+Execute Anonymous:     City__c = idCity,
+Execute Anonymous:     State__c = idState
+Execute Anonymous: );
+Execute Anonymous: insert ped;
+Execute Anonymous: 
+Execute Anonymous: // Limpeza
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :prod.Id OR ProductHierarchy__c = :prod.ProductHierarchy__c];
+Execute Anonymous: 
+Execute Anonymous: // Criar margens aprovadas
+Execute Anonymous: List<Margem__c> margensParaTestar = new List<Margem__c>();
+Execute Anonymous: 
+Execute Anonymous: // Margem A: Super específica (Produto + Cliente + Cidade) -> 30%
+Execute Anonymous: margensParaTestar.add(new Margem__c(
+Execute Anonymous:     Product__c = prod.Id, 
+Execute Anonymous:     Account__c = acc.Id, 
+Execute Anonymous:     City__c = ped.City__c, 
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c, 
+Execute Anonymous:     MarginValuePercent__c = 30, 
+Execute Anonymous:     Status__c = 'Approved' // O critério de aceite pede que seja Aprovada
+Execute Anonymous: ));
+Execute Anonymous: 
+Execute Anonymous: // Margem B: Geral (Só a Hierarquia do produto) -> 10%
+Execute Anonymous: margensParaTestar.add(new Margem__c(
+Execute Anonymous:     ProductHierarchy__c = prod.ProductHierarchy__c, 
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:     MarginValuePercent__c = 10, 
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: ));
+Execute Anonymous: 
+Execute Anonymous: insert margensParaTestar; 
+Execute Anonymous: 
+Execute Anonymous: //criação do item pedido
+Execute Anonymous: OrderItem novoItem = new OrderItem(
+Execute Anonymous:     OrderId = ped.Id, 
+Execute Anonymous:     Product2Id = prod.Id, 
+Execute Anonymous:     Quantity = 1, 
+Execute Anonymous:     UnitPrice = 1
+Execute Anonymous: );
+Execute Anonymous: insert novoItem;
+Execute Anonymous: 
+Execute Anonymous: // 4. VERIFICAÇÃO: Vamos perguntar para o banco: "Ei, que margem você colocou no item?"
+Execute Anonymous: OrderItem itemCalculado = [SELECT MarginPercentage__c, UnitPrice FROM OrderItem WHERE Id = :novoItem.Id];
+Execute Anonymous: 
+Execute Anonymous: System.debug('>>> RESULTADO DO TESTE <<<');
+Execute Anonymous: System.debug('Margem aplicada: ' + itemCalculado.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Preço Unitário final: R$ ' + itemCalculado.UnitPrice);
+Execute Anonymous: 
+Execute Anonymous: // Se a margem for 30%, o sistema provou que é inteligente e pegou a MAIS específica!
+10:59:07.64 (64317087)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+10:59:07.64 (64337400)|EXECUTION_STARTED
+10:59:07.64 (64346008)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+10:59:07.64 (197856796)|FATAL_ERROR|System.TypeException: Test.getStandardPricebookId() can only be called from test methods
+
+(System Code)
+AnonymousBlock: line 15, column 1
+AnonymousBlock: line 15, column 1
+10:59:07.197 (197917691)|CUMULATIVE_LIMIT_USAGE
+10:59:07.197 (197917691)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 5 out of 100
+  Number of query rows: 5 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 1 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 1 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+10:59:07.197 (197917691)|CUMULATIVE_LIMIT_USAGE_END
+
+10:59:07.64 (197972698)|CODE_UNIT_FINISHED|execute_anonymous_apex
+10:59:07.64 (197981234)|EXECUTION_FINISHED

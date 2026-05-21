@@ -1,0 +1,122 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. PEGA OS DADOS DO PEDIDO
+Execute Anonymous: Order ped = [SELECT Id, AccountId, City__c, State__c, Country__c, DistributionCenter__c 
+Execute Anonymous:              FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // Busca o item da Colheitadeira
+Execute Anonymous: OrderItem item = [SELECT Id, Product2Id FROM OrderItem 
+Execute Anonymous:                  WHERE OrderId = :ped.Id AND Product2.Name LIKE '%Colheitadeira%' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 2. LIMPEZA TOTAL (Para garantir que a Trigger busque os novos)
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: delete [SELECT Id FROM Freight__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: 
+Execute Anonymous: // 3. CRIA A MARGEM (Match: Produto + Conta + Cidade + CD)
+Execute Anonymous: // O Status 'Approved' deve bater com o SELECT da sua Trigger
+Execute Anonymous: insert new Margem__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     Account__c = ped.AccountId,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     State__c = ped.State__c,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:     MarginValuePercent__c = 45,
+Execute Anonymous:     Status__c = 'Approved' 
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 4. CRIA O FRETE (R$ 50,00)
+Execute Anonymous: insert new Freight__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     State__c = ped.State__c,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:     FreightValue__c = 50.00,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 5. O PULO DO GATO: ZERAR OS CAMPOS NO ITEM ANTES DO UPDATE
+Execute Anonymous: // Isso força a Trigger a preencher do zero e a gente vê a mudança!
+Execute Anonymous: item.MarginPercentage__c = null;
+Execute Anonymous: item.FreightValue__c = null;
+Execute Anonymous: update item;
+Execute Anonymous: 
+Execute Anonymous: // 6. VERIFICAÇÃO FINAL (O MOMENTO DO PRINT!)
+Execute Anonymous: OrderItem res = [SELECT MarginPercentage__c, FreightValue__c, UnitPrice FROM OrderItem WHERE Id = :item.Id];
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- 🏆 AGORA SIM, SABRINA! ---');
+Execute Anonymous: System.debug('Margem Encontrada: ' + res.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Frete Encontrado: R$ ' + res.FreightValue__c);
+Execute Anonymous: System.debug('Preço Final com Margem: R$ ' + res.UnitPrice);
+Execute Anonymous: 
+Execute Anonymous: if(res.MarginPercentage__c != null && res.MarginPercentage__c > 0) {
+Execute Anonymous:     System.debug('✅ TUDO CERTINHO! PODE TIRAR O PRINT!');
+Execute Anonymous: } else {
+Execute Anonymous:     System.debug('❓ Se ainda der null, verifique se a sua Trigger OrdemItemHandler está ATIVA nas Configurações.');
+Execute Anonymous: }
+14:16:21.164 (164335629)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+14:16:21.164 (164383211)|EXECUTION_STARTED
+14:16:21.164 (164403392)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+14:16:21.164 (405746412)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:16:21.164 (405780962)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:16:22.487 (1487870645)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:16:22.487 (1487909831)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:16:22.487 (1582525055)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:16:22.487 (1735183536)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:16:22.487 (1758163888)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+14:16:22.487 (1758270369)|CODE_UNIT_FINISHED|Validation:Margem:new
+14:16:22.487 (1800725171)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:16:22.487 (1800755573)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:16:22.487 (1800792339)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:16:22.487 (1800797554)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:16:22.487 (1825134265)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:16:22.487 (1939760603)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:16:22.487 (1959144993)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:16:22.487 (1959261858)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:16:22.487 (1988858577)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:16:22.487 (1988892841)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:16:22.487 (1988957841)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:16:22.487 (1988964418)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:16:22.487 (2353302468)|CODE_UNIT_STARTED|[EXTERNAL]|01qg8000000Fou9|OrdemItemTrigger on OrderItem trigger event BeforeUpdate|__sfdc_trigger/OrdemItemTrigger
+14:16:23.505 (2505564602)|CUMULATIVE_LIMIT_USAGE
+14:16:23.505 (2505564602)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 10 out of 100
+  Number of query rows: 13 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 5 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 5 out of 10000
+  Maximum CPU time: 162 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+14:16:23.505 (2505564602)|CUMULATIVE_LIMIT_USAGE_END
+
+14:16:23.509 (2509921411)|CODE_UNIT_FINISHED|OrdemItemTrigger on OrderItem trigger event BeforeUpdate|__sfdc_trigger/OrdemItemTrigger
+14:16:23.509 (2663407458)|USER_DEBUG|[44]|DEBUG|--- 🏆 AGORA SIM, SABRINA! ---
+14:16:23.509 (2663538653)|USER_DEBUG|[45]|DEBUG|Margem Encontrada: 45.00%
+14:16:23.509 (2663567557)|USER_DEBUG|[46]|DEBUG|Frete Encontrado: R$ 50.00
+14:16:23.509 (2663599785)|USER_DEBUG|[47]|DEBUG|Preço Final com Margem: R$ 162.40
+14:16:23.509 (2663660738)|USER_DEBUG|[50]|DEBUG|✅ TUDO CERTINHO! PODE TIRAR O PRINT!
+14:16:23.813 (2813862719)|CUMULATIVE_LIMIT_USAGE
+14:16:23.813 (2813862719)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 11 out of 100
+  Number of query rows: 14 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 5 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 5 out of 10000
+  Maximum CPU time: 162 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+14:16:23.813 (2813862719)|CUMULATIVE_LIMIT_USAGE_END
+
+14:16:23.509 (2813936773)|CODE_UNIT_FINISHED|execute_anonymous_apex
+14:16:23.509 (2813971219)|EXECUTION_FINISHED

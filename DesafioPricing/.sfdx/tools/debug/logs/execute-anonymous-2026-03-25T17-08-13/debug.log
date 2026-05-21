@@ -1,0 +1,102 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. PEGA OS DADOS DO PEDIDO
+Execute Anonymous: Order ped = [SELECT Id, AccountId, City__c, State__c, Country__c, DistributionCenter__c 
+Execute Anonymous:              FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // Busca o item da Colheitadeira
+Execute Anonymous: OrderItem item = [SELECT Id, Product2Id FROM OrderItem 
+Execute Anonymous:                  WHERE OrderId = :ped.Id AND Product2.Name LIKE '%Colheitadeira%' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 2. LIMPEZA TOTAL (Para garantir que a Trigger busque os novos)
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: delete [SELECT Id FROM Freight__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: 
+Execute Anonymous: // 3. CRIA A MARGEM (Match: Produto + Conta + Cidade + CD)
+Execute Anonymous: // O Status 'Approved' deve bater com o SELECT da sua Trigger
+Execute Anonymous: insert new Margem__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     Account__c = ped.AccountId,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     State__c = ped.State__c,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:     MarginValuePercent__c = 45,
+Execute Anonymous:     Status__c = 'Approved' 
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 4. CRIA O FRETE (R$ 50,00)
+Execute Anonymous: insert new Freight__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     State__c = ped.State__c,
+Execute Anonymous:     City__c = ped.City__c,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:     FreightValue__c = 50.00,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 5. O PULO DO GATO: ZERAR OS CAMPOS NO ITEM ANTES DO UPDATE
+Execute Anonymous: // Isso força a Trigger a preencher do zero e a gente vê a mudança!
+Execute Anonymous: item.MarginPercentage__c = null;
+Execute Anonymous: item.FreightValue__c = null;
+Execute Anonymous: update item;
+Execute Anonymous: 
+Execute Anonymous: // 6. VERIFICAÇÃO FINAL (O MOMENTO DO PRINT!)
+Execute Anonymous: OrderItem res = [SELECT MarginPercentage__c, FreightValue__c, UnitPrice FROM OrderItem WHERE Id = :item.Id];
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- 🏆 AGORA SIM, SABRINA! ---');
+Execute Anonymous: System.debug('Margem Encontrada: ' + res.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Frete Encontrado: R$ ' + res.FreightValue__c);
+Execute Anonymous: System.debug('Preço Final com Margem: R$ ' + res.UnitPrice);
+Execute Anonymous: 
+Execute Anonymous: if(res.MarginPercentage__c != null && res.MarginPercentage__c > 0) {
+Execute Anonymous:     System.debug('✅ TUDO CERTINHO! PODE TIRAR O PRINT!');
+Execute Anonymous: } else {
+Execute Anonymous:     System.debug('❓ Se ainda der null, verifique se a sua Trigger OrdemItemHandler está ATIVA nas Configurações.');
+Execute Anonymous: }
+14:08:12.52 (52402843)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+14:08:12.52 (52424225)|EXECUTION_STARTED
+14:08:12.52 (52446076)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+14:08:12.52 (120402512)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:08:12.52 (120436347)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:08:12.52 (375729489)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:08:12.52 (375760715)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:08:12.52 (439415875)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:08:12.52 (450752108)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:08:12.52 (463591004)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+14:08:12.52 (463665562)|CODE_UNIT_FINISHED|Validation:Margem:new
+14:08:12.52 (483871871)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:08:12.52 (483897329)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:08:12.52 (483931012)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+14:08:12.52 (483936366)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+14:08:12.52 (494642805)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:08:12.52 (500455660)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:08:12.52 (510723449)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:08:12.52 (510808646)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:08:12.52 (526620388)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:08:12.52 (526649227)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:08:12.52 (526684766)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:08:12.52 (526691990)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:08:12.52 (674850530)|USER_DEBUG|[44]|DEBUG|--- 🏆 AGORA SIM, SABRINA! ---
+14:08:12.52 (674966540)|USER_DEBUG|[45]|DEBUG|Margem Encontrada: null%
+14:08:12.52 (674989940)|USER_DEBUG|[46]|DEBUG|Frete Encontrado: R$ null
+14:08:12.52 (675080298)|USER_DEBUG|[47]|DEBUG|Preço Final com Margem: R$ 100.00
+14:08:12.52 (675102925)|USER_DEBUG|[52]|DEBUG|❓ Se ainda der null, verifique se a sua Trigger OrdemItemHandler está ATIVA nas Configurações.
+14:08:12.726 (726094662)|CUMULATIVE_LIMIT_USAGE
+14:08:12.726 (726094662)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 5 out of 100
+  Number of query rows: 5 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 5 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 5 out of 10000
+  Maximum CPU time: 94 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+14:08:12.726 (726094662)|CUMULATIVE_LIMIT_USAGE_END
+
+14:08:12.52 (726175381)|CODE_UNIT_FINISHED|execute_anonymous_apex
+14:08:12.52 (726198518)|EXECUTION_FINISHED

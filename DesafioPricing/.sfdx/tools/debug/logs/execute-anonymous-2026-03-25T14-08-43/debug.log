@@ -1,0 +1,75 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. BUSCA O PRODUTO
+Execute Anonymous: Product2 prod = [SELECT Id, ProductHierarchy__c FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 2. BUSCA O PEDIDO QUE VOCÊ ACABOU DE CRIAR
+Execute Anonymous: // (Ele vai pegar o mais recente que tem Cidade e CD)
+Execute Anonymous: Order ped = [SELECT Id, AccountId, City__c, State__c, DistributionCenter__c, Pricebook2Id 
+Execute Anonymous:              FROM Order 
+Execute Anonymous:              WHERE City__c != null AND DistributionCenter__c != null 
+Execute Anonymous:              ORDER BY CreatedDate DESC LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 3. BUSCA O PREÇO DO PRODUTO (O tal do PricebookEntry que deu erro)
+Execute Anonymous: // Vamos procurar o preço desse produto na tabela que está no seu pedido
+Execute Anonymous: PricebookEntry pbe = [SELECT Id, UnitPrice FROM PricebookEntry 
+Execute Anonymous:                       WHERE Product2Id = :prod.Id 
+Execute Anonymous:                       AND Pricebook2Id = :ped.Pricebook2Id 
+Execute Anonymous:                       AND IsActive = true LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: Account acc = [SELECT Id, AccountGroup__c FROM Account WHERE Id = :ped.AccountId];
+Execute Anonymous: 
+Execute Anonymous: // 4. LIMPEZA E CRIAÇÃO DAS MARGENS
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :prod.Id OR ProductHierarchy__c = :prod.ProductHierarchy__c];
+Execute Anonymous: 
+Execute Anonymous: List<Margem__c> margens = new List<Margem__c>();
+Execute Anonymous: margens.add(new Margem__c(
+Execute Anonymous:     Product__c = prod.Id, Account__c = acc.Id, City__c = ped.City__c, 
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c, MarginValuePercent__c = 30, Status__c = 'Approved'
+Execute Anonymous: ));
+Execute Anonymous: margens.add(new Margem__c(
+Execute Anonymous:     ProductHierarchy__c = prod.ProductHierarchy__c, DistributionCenter__c = ped.DistributionCenter__c,
+Execute Anonymous:     MarginValuePercent__c = 10, Status__c = 'Approved'
+Execute Anonymous: ));
+Execute Anonymous: insert margens;
+Execute Anonymous: 
+Execute Anonymous: // 5. INSERÇÃO DO ITEM (Agora com o PBE Id para não dar erro!)
+Execute Anonymous: OrderItem novoItem = new OrderItem(
+Execute Anonymous:     OrderId = ped.Id, 
+Execute Anonymous:     Product2Id = prod.Id, 
+Execute Anonymous:     PricebookEntryId = pbe.Id, // <--- O SALVADOR DA PÁTRIA!
+Execute Anonymous:     Quantity = 1, 
+Execute Anonymous:     UnitPrice = pbe.UnitPrice // Preço base da tabela
+Execute Anonymous: );
+Execute Anonymous: insert novoItem;
+Execute Anonymous: 
+Execute Anonymous: // 6. VERIFICAÇÃO NO LOG
+Execute Anonymous: OrderItem result = [SELECT MarginPercentage__c, UnitPrice FROM OrderItem WHERE Id = :novoItem.Id];
+Execute Anonymous: System.debug('--- ✅ FINALMENTE! SUCESSO NO TESTE ---');
+Execute Anonymous: System.debug('Margem Escolhida: ' + result.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Preço com Margem e Imposto: R$ ' + result.UnitPrice);
+11:08:43.57 (57904445)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:08:43.57 (57935698)|EXECUTION_STARTED
+11:08:43.57 (57957541)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:08:43.57 (102704563)|FATAL_ERROR|System.QueryException: List has no rows for assignment to SObject
+
+AnonymousBlock: line 13, column 1
+11:08:43.102 (102767606)|CUMULATIVE_LIMIT_USAGE
+11:08:43.102 (102767606)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 3 out of 100
+  Number of query rows: 2 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 0 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 0 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:08:43.102 (102767606)|CUMULATIVE_LIMIT_USAGE_END
+
+11:08:43.57 (102830003)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:08:43.57 (102843310)|EXECUTION_FINISHED

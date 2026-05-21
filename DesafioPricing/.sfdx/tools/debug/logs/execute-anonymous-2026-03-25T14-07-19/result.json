@@ -1,0 +1,10 @@
+{
+  "compiled": true,
+  "success": false,
+  "line": 42,
+  "column": 1,
+  "compileProblem": null,
+  "exceptionMessage": "System.DmlException: Insert failed. First exception on row 0; first error: REQUIRED_FIELD_MISSING, Required fields are missing: [PricebookEntryId]: [PricebookEntryId]",
+  "exceptionStackTrace": "AnonymousBlock: line 42, column 1",
+  "executedAt": "2026-03-25T14:07:19.254Z"
+}

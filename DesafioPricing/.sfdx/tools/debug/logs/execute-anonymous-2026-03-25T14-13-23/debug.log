@@ -1,0 +1,39 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // Busca o item que você acabou de criar manualmente
+Execute Anonymous: OrderItem result = [SELECT MarginPercentage__c, UnitPrice, FreightValue__c, Product2.Name 
+Execute Anonymous:                    FROM OrderItem 
+Execute Anonymous:                    ORDER BY CreatedDate DESC LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- 🏆 DESAFIO CONCLUÍDO COM SUCESSO ---');
+Execute Anonymous: System.debug('Produto testado: ' + result.Product2.Name);
+Execute Anonymous: System.debug('Margem aplicada: ' + result.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Frete calculado: R$ ' + result.FreightValue__c);
+Execute Anonymous: System.debug('Preço Final (PricingService): R$ ' + result.UnitPrice);
+11:13:22.55 (55294265)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:13:22.55 (55333121)|EXECUTION_STARTED
+11:13:22.55 (55356827)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:13:22.55 (100817718)|USER_DEBUG|[6]|DEBUG|--- 🏆 DESAFIO CONCLUÍDO COM SUCESSO ---
+11:13:22.55 (101621615)|USER_DEBUG|[7]|DEBUG|Produto testado: GenWatt Diesel 1000kW
+11:13:22.55 (101720766)|USER_DEBUG|[8]|DEBUG|Margem aplicada: null%
+11:13:22.55 (101736048)|USER_DEBUG|[9]|DEBUG|Frete calculado: R$ null
+11:13:22.55 (101804914)|USER_DEBUG|[10]|DEBUG|Preço Final (PricingService): R$ 100000.00
+11:13:22.101 (101933557)|CUMULATIVE_LIMIT_USAGE
+11:13:22.101 (101933557)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 1 out of 100
+  Number of query rows: 1 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 0 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 0 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:13:22.101 (101933557)|CUMULATIVE_LIMIT_USAGE_END
+
+11:13:22.55 (101990492)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:13:22.55 (102002422)|EXECUTION_FINISHED

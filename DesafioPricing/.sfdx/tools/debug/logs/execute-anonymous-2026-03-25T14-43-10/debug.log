@@ -1,0 +1,58 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. Pega a tabela Standard real da sua Org
+Execute Anonymous: Id standardPBId = [SELECT Id FROM Pricebook2 WHERE IsStandard = true LIMIT 1].Id;
+Execute Anonymous: 
+Execute Anonymous: // 2. Pega o preço da Colheitadeira que você acabou de criar
+Execute Anonymous: PricebookEntry pbe = [SELECT Id, UnitPrice, Product2Id FROM PricebookEntry 
+Execute Anonymous:                       WHERE Product2.Name LIKE '%Colheitadeira%' 
+Execute Anonymous:                       AND Pricebook2Id = :standardPBId AND IsActive = true LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 3. Pega o seu pedido e ATUALIZA ele para usar a tabela certa
+Execute Anonymous: Order ped = [SELECT Id, Pricebook2Id FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: ped.Pricebook2Id = standardPBId;
+Execute Anonymous: update ped; // Agora o Pedido e o Produto estão na mesma "família"
+Execute Anonymous: 
+Execute Anonymous: // 4. Insere o item direto
+Execute Anonymous: OrderItem finalItem = new OrderItem(
+Execute Anonymous:     OrderId = ped.Id,
+Execute Anonymous:     Product2Id = pbe.Product2Id,
+Execute Anonymous:     PricebookEntryId = pbe.Id,
+Execute Anonymous:     Quantity = 1,
+Execute Anonymous:     UnitPrice = pbe.UnitPrice
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: insert finalItem;
+Execute Anonymous: 
+Execute Anonymous: // 5. O GRAN FINALE: Ver o resultado calculado pela sua Trigger!
+Execute Anonymous: OrderItem result = [SELECT MarginPercentage__c, UnitPrice, FreightValue__c FROM OrderItem WHERE Id = :finalItem.Id];
+Execute Anonymous: 
+Execute Anonymous: System.debug('--- 🏆 FINALMENTE, SABRINA! VOCÊ VENCEU! ---');
+Execute Anonymous: System.debug('Margem calculada: ' + result.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Preço final: R$ ' + result.UnitPrice);
+11:43:10.62 (62067779)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:43:10.62 (62101614)|EXECUTION_STARTED
+11:43:10.62 (62132182)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:43:10.62 (206201797)|EXCEPTION_THROWN|[12]|System.DmlException: Update failed. First exception on row 0 with id 801g80000066bhWAAQ; first error: FIELD_INTEGRITY_EXCEPTION, field integrity exception: Pricebook2Id (cannot change pricebook on order with order items): [Pricebook2Id]
+11:43:10.62 (208740994)|FATAL_ERROR|System.DmlException: Update failed. First exception on row 0 with id 801g80000066bhWAAQ; first error: FIELD_INTEGRITY_EXCEPTION, field integrity exception: Pricebook2Id (cannot change pricebook on order with order items): [Pricebook2Id]
+
+AnonymousBlock: line 12, column 1
+11:43:10.208 (208764866)|CUMULATIVE_LIMIT_USAGE
+11:43:10.208 (208764866)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 3 out of 100
+  Number of query rows: 3 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 1 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 1 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:43:10.208 (208764866)|CUMULATIVE_LIMIT_USAGE_END
+
+11:43:10.62 (208823225)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:43:10.62 (208836627)|EXECUTION_FINISHED

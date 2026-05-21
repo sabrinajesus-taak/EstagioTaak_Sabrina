@@ -1,0 +1,74 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. Limpando o terreno
+Execute Anonymous: Order ped = [SELECT Id, Pricebook2Id FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: delete [SELECT Id FROM OrderItem WHERE OrderId = :ped.Id]; // Remove o GenWatt ou qualquer outro que esteja lá
+Execute Anonymous: 
+Execute Anonymous: // 2. Configura a tabela certa agora que o pedido está vazio
+Execute Anonymous: Id standardPBId = [SELECT Id FROM Pricebook2 WHERE IsStandard = true LIMIT 1].Id;
+Execute Anonymous: ped.Pricebook2Id = standardPBId;
+Execute Anonymous: update ped;
+Execute Anonymous: 
+Execute Anonymous: // 3. Pega o preço da Colheitadeira
+Execute Anonymous: PricebookEntry pbe = [SELECT Id, UnitPrice, Product2Id FROM PricebookEntry 
+Execute Anonymous:                       WHERE Product2.Name LIKE '%Colheitadeira%' 
+Execute Anonymous:                       AND Pricebook2Id = :standardPBId AND IsActive = true LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 4. Cria a MARGEM (Criterio 1: 18 níveis)
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :pbe.Product2Id];
+Execute Anonymous: Margem__c m = new Margem__c(
+Execute Anonymous:     Product__c = pbe.Product2Id,
+Execute Anonymous:     MarginValuePercent__c = 45,
+Execute Anonymous:     Status__c = 'Approved',
+Execute Anonymous:     DistributionCenter__c = [SELECT Id FROM DistributionCenter__c LIMIT 1].Id // Pega um CD qualquer
+Execute Anonymous: );
+Execute Anonymous: insert m;
+Execute Anonymous: 
+Execute Anonymous: // 5. Insere o item final
+Execute Anonymous: OrderItem finalItem = new OrderItem(
+Execute Anonymous:     OrderId = ped.Id,
+Execute Anonymous:     Product2Id = pbe.Product2Id,
+Execute Anonymous:     PricebookEntryId = pbe.Id,
+Execute Anonymous:     Quantity = 1,
+Execute Anonymous:     UnitPrice = pbe.UnitPrice
+Execute Anonymous: );
+Execute Anonymous: insert finalItem;
+Execute Anonymous: 
+Execute Anonymous: // 6. RESULTADO
+Execute Anonymous: OrderItem res = [SELECT MarginPercentage__c, UnitPrice FROM OrderItem WHERE Id = :finalItem.Id];
+Execute Anonymous: System.debug('--- 🏆 ACABOU O PERRENGUE! ---');
+Execute Anonymous: System.debug('Margem: ' + res.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Preço: R$ ' + res.UnitPrice);
+11:47:16.50 (50469218)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:47:16.50 (50502878)|EXECUTION_STARTED
+11:47:16.50 (50523992)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:47:16.50 (527868439)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:47:16.50 (552661650)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:47:16.50 (564564104)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+11:47:16.50 (564635506)|CODE_UNIT_FINISHED|Validation:Margem:new
+11:47:16.50 (586199557)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:47:16.50 (586220032)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:47:16.50 (586245880)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:47:16.50 (586253086)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:47:16.50 (708954370)|USER_DEBUG|[37]|DEBUG|--- 🏆 ACABOU O PERRENGUE! ---
+11:47:16.50 (709054227)|USER_DEBUG|[38]|DEBUG|Margem: null%
+11:47:16.50 (709132433)|USER_DEBUG|[39]|DEBUG|Preço: R$ 100.00
+11:47:16.760 (760168960)|CUMULATIVE_LIMIT_USAGE
+11:47:16.760 (760168960)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 7 out of 100
+  Number of query rows: 8 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 4 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 6 out of 10000
+  Maximum CPU time: 94 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:47:16.760 (760168960)|CUMULATIVE_LIMIT_USAGE_END
+
+11:47:16.50 (760244155)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:47:16.50 (760268050)|EXECUTION_FINISHED

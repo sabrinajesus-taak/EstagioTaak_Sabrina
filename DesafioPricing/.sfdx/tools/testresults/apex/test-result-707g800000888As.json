@@ -1,0 +1,63 @@
+{
+  "summary": {
+    "outcome": "Passed",
+    "testsRan": 2,
+    "passing": 2,
+    "failing": 0,
+    "skipped": 0,
+    "passRate": "100%",
+    "failRate": "0%",
+    "skipRate": "0%",
+    "testStartTime": "2026-04-10T16:53:19.000Z",
+    "testSetupTimeInMs": 1477,
+    "testExecutionTimeInMs": 504,
+    "testTotalTimeInMs": 1981,
+    "commandTimeInMs": 266,
+    "hostname": "https://resourceful-moose-fmmd11-dev-ed.trailblaze.my.salesforce.com",
+    "orgId": "00Dg8000001b33BEAQ",
+    "username": "sabrina.jesus@resourceful-moose-fmmd11.com",
+    "testRunId": "707g800000888As",
+    "userId": "005g80000010N45AAE"
+  },
+  "tests": [
+    {
+      "id": "07Mg80000010LFzEAM",
+      "queueItemId": "709g8000002CqhdAAC",
+      "stackTrace": null,
+      "message": null,
+      "asyncApexJobId": "707g800000888AsAAI",
+      "methodName": "pricingOrderItemTest",
+      "outcome": "Pass",
+      "apexLogId": "07Lg8000001SRfvEAG",
+      "apexClass": {
+        "id": "01pg8000001w1MbAAI",
+        "name": "OrderItemHandlerTest",
+        "namespacePrefix": null,
+        "fullName": "OrderItemHandlerTest"
+      },
+      "runTime": 504,
+      "testTimestamp": "2026-04-10T16:53:23.000+0000",
+      "fullName": "OrderItemHandlerTest.pricingOrderItemTest",
+      "category": "Apex"
+    }
+  ],
+  "setup": [
+    {
+      "id": "07Mg80000010LFyEAM",
+      "stackTrace": null,
+      "message": null,
+      "asyncApexJobId": "707g800000888AsAAI",
+      "methodName": "setup",
+      "apexLogId": "07Lg8000001SRfvEAG",
+      "apexClass": {
+        "id": "01pg8000001w1MbAAI",
+        "name": "OrderItemHandlerTest",
+        "namespacePrefix": null,
+        "fullName": "OrderItemHandlerTest"
+      },
+      "testSetupTime": 1477,
+      "testTimestamp": "2026-04-10T16:53:21.000+0000",
+      "fullName": "OrderItemHandlerTest.setup"
+    }
+  ]
+}

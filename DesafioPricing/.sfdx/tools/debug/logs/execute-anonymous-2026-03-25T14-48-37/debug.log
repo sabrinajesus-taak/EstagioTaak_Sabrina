@@ -1,0 +1,61 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. Pega o CD e a Cidade que estão DE FATO no seu pedido
+Execute Anonymous: Order ped = [SELECT Id, DistributionCenter__c, City__c FROM Order WHERE OrderNumber = '00000100' LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 2. Pega o item da Colheitadeira que a gente acabou de inserir
+Execute Anonymous: OrderItem item = [SELECT Id, Product2Id FROM OrderItem WHERE OrderId = :ped.Id LIMIT 1];
+Execute Anonymous: 
+Execute Anonymous: // 3. ATUALIZA A MARGEM para o CD/Cidade do pedido (O "casamento" dos dados)
+Execute Anonymous: delete [SELECT Id FROM Margem__c WHERE Product__c = :item.Product2Id];
+Execute Anonymous: insert new Margem__c(
+Execute Anonymous:     Product__c = item.Product2Id,
+Execute Anonymous:     DistributionCenter__c = ped.DistributionCenter__c, // Usa o CD do pedido!
+Execute Anonymous:     City__c = ped.City__c,                             // Usa a Cidade do pedido!
+Execute Anonymous:     MarginValuePercent__c = 45,
+Execute Anonymous:     Status__c = 'Approved'
+Execute Anonymous: );
+Execute Anonymous: 
+Execute Anonymous: // 4. DÁ UM "TOTÓ" NO ITEM PARA A TRIGGER RECALCULAR
+Execute Anonymous: update item;
+Execute Anonymous: 
+Execute Anonymous: // 5. O PRINT DA VITÓRIA
+Execute Anonymous: OrderItem res = [SELECT MarginPercentage__c, UnitPrice FROM OrderItem WHERE Id = :item.Id];
+Execute Anonymous: System.debug('--- 🏁 AGORA SIM, SABRINA! 45% NA TELA! ---');
+Execute Anonymous: System.debug('Margem Final: ' + res.MarginPercentage__c + '%');
+Execute Anonymous: System.debug('Preço com Margem: R$ ' + res.UnitPrice);
+11:48:36.41 (41294599)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+11:48:36.41 (41318340)|EXECUTION_STARTED
+11:48:36.41 (41330519)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+11:48:36.41 (98660811)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:48:36.41 (98692657)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:48:36.41 (308686985)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:48:36.41 (319329913)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:48:36.41 (339828569)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Margem:new
+11:48:36.41 (339908987)|CODE_UNIT_FINISHED|Validation:Margem:new
+11:48:36.41 (361742195)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:48:36.41 (361768173)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:48:36.41 (361797154)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000dEr7
+11:48:36.41 (361802169)|CODE_UNIT_FINISHED|Flow:01Ig8000000dEr7
+11:48:36.41 (518459952)|USER_DEBUG|[22]|DEBUG|--- 🏁 AGORA SIM, SABRINA! 45% NA TELA! ---
+11:48:36.41 (518553427)|USER_DEBUG|[23]|DEBUG|Margem Final: null%
+11:48:36.41 (518647643)|USER_DEBUG|[24]|DEBUG|Preço com Margem: R$ 100.00
+11:48:36.548 (548875169)|CUMULATIVE_LIMIT_USAGE
+11:48:36.548 (548875169)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 4 out of 100
+  Number of query rows: 4 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 3 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 3 out of 10000
+  Maximum CPU time: 65 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+11:48:36.548 (548875169)|CUMULATIVE_LIMIT_USAGE_END
+
+11:48:36.41 (548948410)|CODE_UNIT_FINISHED|execute_anonymous_apex
+11:48:36.41 (548970146)|EXECUTION_FINISHED

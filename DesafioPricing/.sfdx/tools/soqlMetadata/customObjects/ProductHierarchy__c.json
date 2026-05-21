@@ -1,0 +1,506 @@
+{
+  "name": "ProductHierarchy__c",
+  "label": "ProductHierarchy",
+  "custom": true,
+  "queryable": true,
+  "fields": [
+    {
+      "aggregatable": true,
+      "custom": false,
+      "defaultValue": null,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": true,
+      "inlineHelpText": null,
+      "label": "Record ID",
+      "name": "Id",
+      "nillable": false,
+      "picklistValues": [],
+      "referenceTo": [],
+      "relationshipName": null,
+      "sortable": true,
+      "type": "id"
+    },
+    {
+      "aggregatable": true,
+      "custom": false,
+      "defaultValue": null,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": true,
+      "inlineHelpText": null,
+      "label": "Owner ID",
+      "name": "OwnerId",
+      "nillable": false,
+      "picklistValues": [],
+      "referenceTo": [
+        "Group",
+        "User"
+      ],
+      "relationshipName": "Owner",
+      "sortable": true,
+      "type": "reference"
+    },
+    {
+      "aggregatable": false,
+      "custom": false,
+      "defaultValue": false,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": true,
+      "inlineHelpText": null,
+      "label": "Deleted",
+      "name": "IsDeleted",
+      "nillable": false,
+      "picklistValues": [],
+      "referenceTo": [],
+      "relationshipName": null,
+      "sortable": true,
+      "type": "boolean"
+    },
+    {
+      "aggregatable": true,
+      "custom": false,
+      "defaultValue": null,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": true,
+      "inlineHelpText": null,
+      "label": "ProductHierarchy Name",
+      "name": "Name",
+      "nillable": true,
+      "picklistValues": [],
+      "referenceTo": [],
+      "relationshipName": null,
+      "sortable": true,
+      "type": "string"
+    },
+    {
+      "aggregatable": true,
+      "custom": false,
+      "defaultValue": null,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": false,
+      "inlineHelpText": null,
+      "label": "Created Date",
+      "name": "CreatedDate",
+      "nillable": false,
+      "picklistValues": [],
+      "referenceTo": [],
+      "relationshipName": null,
+      "sortable": true,
+      "type": "datetime"
+    },
+    {
+      "aggregatable": true,
+      "custom": false,
+      "defaultValue": null,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": true,
+      "inlineHelpText": null,
+      "label": "Created By ID",
+      "name": "CreatedById",
+      "nillable": false,
+      "picklistValues": [],
+      "referenceTo": [
+        "User"
+      ],
+      "relationshipName": "CreatedBy",
+      "sortable": true,
+      "type": "reference"
+    },
+    {
+      "aggregatable": true,
+      "custom": false,
+      "defaultValue": null,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": false,
+      "inlineHelpText": null,
+      "label": "Last Modified Date",
+      "name": "LastModifiedDate",
+      "nillable": false,
+      "picklistValues": [],
+      "referenceTo": [],
+      "relationshipName": null,
+      "sortable": true,
+      "type": "datetime"
+    },
+    {
+      "aggregatable": true,
+      "custom": false,
+      "defaultValue": null,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": true,
+      "inlineHelpText": null,
+      "label": "Last Modified By ID",
+      "name": "LastModifiedById",
+      "nillable": false,
+      "picklistValues": [],
+      "referenceTo": [
+        "User"
+      ],
+      "relationshipName": "LastModifiedBy",
+      "sortable": true,
+      "type": "reference"
+    },
+    {
+      "aggregatable": true,
+      "custom": false,
+      "defaultValue": null,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": false,
+      "inlineHelpText": null,
+      "label": "System Modstamp",
+      "name": "SystemModstamp",
+      "nillable": false,
+      "picklistValues": [],
+      "referenceTo": [],
+      "relationshipName": null,
+      "sortable": true,
+      "type": "datetime"
+    },
+    {
+      "aggregatable": true,
+      "custom": false,
+      "defaultValue": null,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": false,
+      "inlineHelpText": null,
+      "label": "Last Viewed Date",
+      "name": "LastViewedDate",
+      "nillable": true,
+      "picklistValues": [],
+      "referenceTo": [],
+      "relationshipName": null,
+      "sortable": true,
+      "type": "datetime"
+    },
+    {
+      "aggregatable": true,
+      "custom": false,
+      "defaultValue": null,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": false,
+      "inlineHelpText": null,
+      "label": "Last Referenced Date",
+      "name": "LastReferencedDate",
+      "nillable": true,
+      "picklistValues": [],
+      "referenceTo": [],
+      "relationshipName": null,
+      "sortable": true,
+      "type": "datetime"
+    },
+    {
+      "aggregatable": true,
+      "custom": true,
+      "defaultValue": null,
+      "extraTypeInfo": null,
+      "filterable": true,
+      "groupable": true,
+      "inlineHelpText": null,
+      "label": "Code",
+      "name": "Code__c",
+      "nillable": false,
+      "picklistValues": [],
+      "referenceTo": [],
+      "relationshipName": null,
+      "sortable": true,
+      "type": "string"
+    }
+  ],
+  "childRelationships": [
+    {
+      "childSObject": "AIInsightValue",
+      "field": "SobjectLookupValueId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "AIRecordInsight",
+      "field": "TargetId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "ApprovalSubmission",
+      "field": "RelatedRecordId",
+      "relationshipName": "ApprovalSubmissions"
+    },
+    {
+      "childSObject": "ApprovalWorkItem",
+      "field": "RelatedRecordId",
+      "relationshipName": "ApprovalWorkItems"
+    },
+    {
+      "childSObject": "AttachedContentDocument",
+      "field": "LinkedEntityId",
+      "relationshipName": "AttachedContentDocuments"
+    },
+    {
+      "childSObject": "Attachment",
+      "field": "ParentId",
+      "relationshipName": "Attachments"
+    },
+    {
+      "childSObject": "CollaborationGroupRecord",
+      "field": "RecordId",
+      "relationshipName": "RecordAssociatedGroups"
+    },
+    {
+      "childSObject": "CollaborationGroupRecordChangeEvent",
+      "field": "RecordId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "CombinedAttachment",
+      "field": "ParentId",
+      "relationshipName": "CombinedAttachments"
+    },
+    {
+      "childSObject": "ContactRequest",
+      "field": "WhatId",
+      "relationshipName": "ContactRequests"
+    },
+    {
+      "childSObject": "ContentDistribution",
+      "field": "RelatedRecordId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "ContentDocumentLink",
+      "field": "LinkedEntityId",
+      "relationshipName": "ContentDocumentLinks"
+    },
+    {
+      "childSObject": "ContentDocumentLinkChangeEvent",
+      "field": "LinkedEntityId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "ContentVersion",
+      "field": "FirstPublishLocationId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "ContentVersionChangeEvent",
+      "field": "FirstPublishLocationId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "DuplicateRecordItem",
+      "field": "RecordId",
+      "relationshipName": "DuplicateRecordItems"
+    },
+    {
+      "childSObject": "EmailMessageChangeEvent",
+      "field": "RelatedToId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "EntitySubscription",
+      "field": "ParentId",
+      "relationshipName": "FeedSubscriptionsForEntity"
+    },
+    {
+      "childSObject": "EventChangeEvent",
+      "field": "WhatId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "EventRelationChangeEvent",
+      "field": "RelationId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "FeedComment",
+      "field": "ParentId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "FeedItem",
+      "field": "ParentId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "FinanceBalanceSnapshot",
+      "field": "LegalEntityId",
+      "relationshipName": "FinanceBalanceSnapshots"
+    },
+    {
+      "childSObject": "FinanceBalanceSnapshot",
+      "field": "ReferenceEntityId",
+      "relationshipName": "FinanceBalanceSnapshots"
+    },
+    {
+      "childSObject": "FinanceBalanceSnapshotChangeEvent",
+      "field": "LegalEntityId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "FinanceBalanceSnapshotChangeEvent",
+      "field": "ReferenceEntityId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "FinanceTransaction",
+      "field": "DestinationEntityId",
+      "relationshipName": "DestinationFinanceTransactions"
+    },
+    {
+      "childSObject": "FinanceTransaction",
+      "field": "LegalEntityId",
+      "relationshipName": "FinanceTransactions"
+    },
+    {
+      "childSObject": "FinanceTransaction",
+      "field": "ParentReferenceEntityId",
+      "relationshipName": "ParentFinanceTransactions"
+    },
+    {
+      "childSObject": "FinanceTransaction",
+      "field": "ReferenceEntityId",
+      "relationshipName": "FinanceTransactions"
+    },
+    {
+      "childSObject": "FinanceTransaction",
+      "field": "SourceEntityId",
+      "relationshipName": "SourceFinanceTransactions"
+    },
+    {
+      "childSObject": "FinanceTransactionChangeEvent",
+      "field": "DestinationEntityId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "FinanceTransactionChangeEvent",
+      "field": "LegalEntityId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "FinanceTransactionChangeEvent",
+      "field": "ParentReferenceEntityId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "FinanceTransactionChangeEvent",
+      "field": "ReferenceEntityId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "FinanceTransactionChangeEvent",
+      "field": "SourceEntityId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "FlowExecutionErrorEvent",
+      "field": "ContextRecordId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "FlowOrchestrationWorkItem",
+      "field": "RelatedRecordId",
+      "relationshipName": "FlowOrchestrationWorkItems"
+    },
+    {
+      "childSObject": "FlowRecordRelation",
+      "field": "RelatedRecordId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "Freight__c",
+      "field": "ProductHierarchy__c",
+      "relationshipName": "Freight__r"
+    },
+    {
+      "childSObject": "Margem__c",
+      "field": "ProductHierarchy__c",
+      "relationshipName": "Margins__r"
+    },
+    {
+      "childSObject": "Note",
+      "field": "ParentId",
+      "relationshipName": "Notes"
+    },
+    {
+      "childSObject": "NoteAndAttachment",
+      "field": "ParentId",
+      "relationshipName": "NotesAndAttachments"
+    },
+    {
+      "childSObject": "ProcessException",
+      "field": "AttachedToId",
+      "relationshipName": "ProcessExceptions"
+    },
+    {
+      "childSObject": "ProcessExceptionChangeEvent",
+      "field": "AttachedToId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "ProcessExceptionEvent",
+      "field": "AttachedToId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "ProcessInstance",
+      "field": "TargetObjectId",
+      "relationshipName": "ProcessInstances"
+    },
+    {
+      "childSObject": "ProcessInstanceChangeEvent",
+      "field": "TargetObjectId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "ProcessInstanceHistory",
+      "field": "TargetObjectId",
+      "relationshipName": "ProcessSteps"
+    },
+    {
+      "childSObject": "Product2",
+      "field": "ProductHierarchy__c",
+      "relationshipName": "Products__r"
+    },
+    {
+      "childSObject": "ProductHierarchy__History",
+      "field": "ParentId",
+      "relationshipName": "Histories"
+    },
+    {
+      "childSObject": "ProductHierarchy__Share",
+      "field": "ParentId",
+      "relationshipName": "Shares"
+    },
+    {
+      "childSObject": "RecordAction",
+      "field": "RecordId",
+      "relationshipName": "RecordActions"
+    },
+    {
+      "childSObject": "RecordActionHistory",
+      "field": "ParentRecordId",
+      "relationshipName": "RecordActionHistories"
+    },
+    {
+      "childSObject": "TaskChangeEvent",
+      "field": "WhatId",
+      "relationshipName": null
+    },
+    {
+      "childSObject": "TopicAssignment",
+      "field": "EntityId",
+      "relationshipName": "TopicAssignments"
+    },
+    {
+      "childSObject": "UserDefinedLabelAssignment",
+      "field": "ItemId",
+      "relationshipName": "UserDefinedLabelAssignments"
+    }
+  ]
+}

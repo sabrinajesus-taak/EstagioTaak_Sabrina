@@ -1,0 +1,10 @@
+{
+  "compiled": true,
+  "success": false,
+  "line": 18,
+  "column": 1,
+  "compileProblem": null,
+  "exceptionMessage": "System.DmlException: Insert failed. First exception on row 0; first error: INVALID_CROSS_REFERENCE_KEY, The Price Book Entry must belong to the Price Book related to the Order.: [PricebookEntryId]",
+  "exceptionStackTrace": "AnonymousBlock: line 18, column 1",
+  "executedAt": "2026-03-25T14:42:23.330Z"
+}

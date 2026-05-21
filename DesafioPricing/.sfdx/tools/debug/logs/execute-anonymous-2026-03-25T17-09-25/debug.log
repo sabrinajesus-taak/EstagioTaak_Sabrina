@@ -1,0 +1,78 @@
+66.0 APEX_CODE,DEBUG;APEX_PROFILING,INFO
+Execute Anonymous: // 1. SETUP DE DADOS
+Execute Anonymous: Id idP = [SELECT Id FROM Product2 WHERE Name = 'Colheitadeira S700' LIMIT 1].Id;
+Execute Anonymous: Id idC = [SELECT Id FROM City__c WHERE Name = 'São Bernardo Do Campo' LIMIT 1].Id;
+Execute Anonymous: Id idE = [SELECT Id FROM State__c WHERE Name = 'São Paulo' LIMIT 1].Id;
+Execute Anonymous: Id idPa = [SELECT Id FROM Country__c WHERE Name = 'Brasil' LIMIT 1].Id;
+Execute Anonymous: Id idD = [SELECT Id FROM DistributionCenter__c LIMIT 1].Id;
+Execute Anonymous: 
+Execute Anonymous: // Criação de um segundo estado pq se usarmos o mesmo ele trava no flow na criação de Produto_EstadoSP e acha q tem dois iguais. 
+Execute Anonymous: Id idOutroE;
+Execute Anonymous: List<State__c> outros = [SELECT Id FROM State__c WHERE Name != 'São Paulo' LIMIT 1];
+Execute Anonymous: if(outros.isEmpty()) {
+Execute Anonymous:     State__c novoEst = new State__c(Name = 'Paraná', StateCode__c = 'PR', Country__c = idPa); // Use o ID do país aqui
+Execute Anonymous:     insert novoEst;
+Execute Anonymous:     idOutroE = novoEst.Id;
+Execute Anonymous: } else {
+Execute Anonymous:     idOutroE = outros[0].Id;
+Execute Anonymous: }
+Execute Anonymous: 
+Execute Anonymous: // 2. LIMPEZA
+Execute Anonymous: delete [SELECT Id FROM Freight__c WHERE Product__c = :idP];
+Execute Anonymous: 
+Execute Anonymous: // 3. CRIAÇÃO DOS NÍVEIS
+Execute Anonymous: Freight__c fCid = new Freight__c(Product__c=idP, City__c=idC, State__c=idE, DistributionCenter__c=idD, FreightValue__c=450, Status__c='Approved'); 
+Execute Anonymous: Freight__c fEst = new Freight__c(Product__c=idP, State__c=idE, DistributionCenter__c=idD, FreightValue__c=1200, Status__c='Approved'); 
+Execute Anonymous: Freight__c fPai = new Freight__c(Product__c=idP, Country__c=idPa, State__c=idOutroE, DistributionCenter__c=idD, FreightValue__c=2500, Status__c='Approved'); 
+Execute Anonymous: insert new List<Freight__c>{fCid, fEst, fPai};
+Execute Anonymous: 
+Execute Anonymous: // 4. RESULTADOS (O que você vai mostrar no Log)
+Execute Anonymous: System.debug('--- BUSCA 1 (CIDADE): R$ ' + fCid.FreightValue__c);
+Execute Anonymous: delete fCid;
+Execute Anonymous: System.debug('--- BUSCA 2 (ESTADO): R$ ' + fEst.FreightValue__c);
+Execute Anonymous: delete fEst;
+Execute Anonymous: System.debug('--- BUSCA 3 (PAÍS): R$ ' + fPai.FreightValue__c);
+14:09:25.61 (61024415)|USER_INFO|[EXTERNAL]|005g80000010N45|sabrina.jesus@resourceful-moose-fmmd11.com|(GMT-03:00) Brasilia Standard Time (America/Sao_Paulo)|GMT-03:00
+14:09:25.61 (61055133)|EXECUTION_STARTED
+14:09:25.61 (61070483)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+14:09:25.61 (179647501)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:09:25.61 (179679507)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:09:25.61 (395150228)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:09:25.61 (406279391)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:09:25.61 (418045529)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:09:25.61 (418113699)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:09:25.61 (418121821)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:09:25.61 (418145725)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:09:25.61 (418149512)|CODE_UNIT_STARTED|[EXTERNAL]|Validation:Freight:new
+14:09:25.61 (418164198)|CODE_UNIT_FINISHED|Validation:Freight:new
+14:09:25.61 (440082321)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:09:25.61 (440107901)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:09:25.61 (440134829)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:09:25.61 (440140691)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:09:25.61 (442804722)|USER_DEBUG|[29]|DEBUG|--- BUSCA 1 (CIDADE): R$ 450
+14:09:25.61 (448146880)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:09:25.61 (448166404)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:09:25.61 (493875733)|USER_DEBUG|[31]|DEBUG|--- BUSCA 2 (ESTADO): R$ 1200
+14:09:25.61 (499482131)|CODE_UNIT_STARTED|[EXTERNAL]|Flow:01Ig8000000duwn
+14:09:25.61 (499509565)|CODE_UNIT_FINISHED|Flow:01Ig8000000duwn
+14:09:25.61 (546554909)|USER_DEBUG|[33]|DEBUG|--- BUSCA 3 (PAÍS): R$ 2500
+14:09:25.584 (584978450)|CUMULATIVE_LIMIT_USAGE
+14:09:25.584 (584978450)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 7 out of 100
+  Number of query rows: 7 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 4 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 6 out of 10000
+  Maximum CPU time: 101 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+14:09:25.584 (584978450)|CUMULATIVE_LIMIT_USAGE_END
+
+14:09:25.61 (585051040)|CODE_UNIT_FINISHED|execute_anonymous_apex
+14:09:25.61 (585072986)|EXECUTION_FINISHED
