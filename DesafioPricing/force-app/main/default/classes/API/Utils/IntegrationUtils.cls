@@ -1,0 +1,108 @@
+public with sharing class IntegrationUtils {
+    public static Boolean checkEmptyString(Object value) {
+        return ((value == null || value == '' || value == 'null') ? true : false);
+    }
+    
+    // Records upsert validation, adding results to the response list
+    public static Boolean upsertRecords(List<Database.UpsertResult> upsertResults, List<DataIntegrationFields.ResponseParent> responseList,
+    List<SObject> sobjectListToUpsert, Schema.SObjectField field) {
+        Boolean hasError = false;
+        for (DataIntegrationFields.Response response : responseList) hasError = response.hasError;
+        
+        for (Integer i = 0; i < upsertResults.size(); i++) {
+            DataIntegrationFields.ResponseParent responseData = new DataIntegrationFields.ResponseParent();
+            SObject sobjectResult = sobjectListToUpsert[i];
+            Database.UpsertResult upsertResult = upsertResults[i];
+            
+            if (upsertResult.isSuccess()) {
+                responseData.success(
+                    upsertResult.getId(),
+                String.valueOf(sobjectResult.get(field)),
+                String.valueOf(sobjectResult.getSObjectType())
+                    );
+            }
+            else {
+                System.debug('ERRO ORIGINAL => ' + upsertResult.getErrors()[0].getMessage());
+                
+                // System.debug('ERRO TRATADO => ' + handlerErrorMessage(
+                //     upsertResult.getErrors()[0].getMessage()
+                //     ));
+					
+                // responseData.error(
+                //     String.valueOf(sobjectResult.get(field)),
+                // handlerErrorMessage(
+                //     upsertResult.getErrors()[0].getMessage()
+                //     ),
+                String.valueOf(sobjectResult.getSObjectType());
+                System.debug(responseData);
+                
+                hasError = true;
+            }
+            
+            responseList.add(responseData);
+        }
+        
+        return hasError;
+    }
+    
+    // private static String handlerErrorMessage(String errorMessage) {
+    //     System.debug('ENTROU NO HANDLER');
+        
+    //     if(errorMessage.contains('Account') ||
+    //        errorMessage.contains('ACCOUNT')) {
+    //         return Label.Account_Not_Found;
+    //     }
+        
+    //     return errorMessage;
+    // }
+    
+    // Child records upsert validation, adding results to the response list
+    public static void upsertChildRecords(List<Database.UpsertResult> upsertResults, Map<String, List<DataIntegrationFields.Response>> responseMap,
+    List<SObject> sobjectListToUpsert, Map<String, String> parentExternalIdToChild, Schema.SObjectField field) {
+        for (Integer i = 0; i < upsertResults.size(); i++) {
+            DataIntegrationFields.Response responseData = new DataIntegrationFields.Response();
+            SObject objectResult = sobjectListToUpsert[i];
+            Database.UpsertResult upsertResult = upsertResults[i];
+            
+            if (upsertResult.isSuccess()) {
+                responseData.success(
+                    upsertResult.getId(),
+                String.valueOf(objectResult.get(field)),
+                String.valueOf(objectResult.getSObjectType())
+                    );
+            }
+            else {
+                // responseData.error(
+                //     String.valueOf(objectResult.get(field)),
+                // handlerErrorMessage(
+                //     upsertResult.getErrors()[0].getMessage()
+                //     ),
+                String.valueOf(objectResult.getSObjectType());
+            }
+            
+            String responseKey = parentExternalIdToChild.get((String)objectResult.get(field));
+            // Associating child object's response with object response
+            if (!responseMap.containsKey(responseKey))
+                responseMap.put(responseKey, new List<DataIntegrationFields.Response>());
+            responseMap.get(responseKey).add(responseData);
+        }
+    }
+    
+    public static HttpResponse executeCallout(
+        String endpoint, String payload, Map<String, String> requestHeaders, String method, Integer timeout
+    ) {
+        HttpRequest request = new HttpRequest();
+        request.setMethod(method);
+        request.setTimeout(timeout);
+        request.setEndpoint(endpoint);
+        request.setBody(payload);
+        
+        if (requestHeaders != null && !requestHeaders.isEmpty()) {
+            for (String headerKey : requestHeaders.keySet()) {
+                request.setHeader(headerKey, requestHeaders.get(headerKey));
+            }
+        }
+        
+        return (new Http()).send(request);
+    }
+}
