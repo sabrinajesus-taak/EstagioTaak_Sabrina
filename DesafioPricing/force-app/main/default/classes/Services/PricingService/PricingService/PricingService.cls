@@ -16,13 +16,13 @@ public class PricingService {
         Decimal calculatedPrice = priceWithoutMargin * (1 + (margemPercent / 100));
         
         // preenchimento
-        orderItem.ProductionCost__c = productionCost;   
+        orderItem.ProductionCost__c = productionCost;
         orderItem.MarginPercentage__c = margemPercent;
         orderItem.FreightValue__c = freightValue;
         orderItem.TaxPercentage__c = taxPercent;
         orderItem.PriceWithoutMargin__c = priceWithoutMargin; // preco sem margem
-        orderItem.FinalPrice__c = calculatedPrice; // preco final, orderItem pedido 
-
+        orderItem.FinalPrice__c = calculatedPrice; // preco final, orderItem pedido
+        
         //garante q o unitPrice não seja null
         Decimal unitPriceEntered = (orderItem.UnitPrice != null) ? orderItem.UnitPrice : 0;
         
@@ -31,11 +31,8 @@ public class PricingService {
             orderItem.DiscountPercentage__c = (calculatedPrice - unitPriceEntered) / calculatedPrice;
             orderItem.DiscountValue__c = calculatedPrice - unitPriceEntered;
         }
-        
-        orderItem.UnitPrice = orderItem.FinalPrice__c;
+
+        //campo do FinalPrice__c * quantidade
+        orderItem.FinalTotal__c = orderItem.FinalPrice__c * orderItem.Quantity;
     }
 }
-
-
-
-

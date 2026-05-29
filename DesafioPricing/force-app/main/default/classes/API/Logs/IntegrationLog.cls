@@ -9,7 +9,8 @@ public with sharing class IntegrationLog {
 		String endpoint,
 		Integer statusCode,
 		Boolean hasAnyErrors,
-		Boolean hasDeleted
+		Boolean hasDeleted,
+		Id orderId
 	){
 		Boolean attachmentIN = (payloadIN.length() > 130000);
 		Boolean attachmentOUT = (payloadOUT.length() > 130000);
@@ -35,7 +36,8 @@ public with sharing class IntegrationLog {
 			statusCode,
 			hasAnyErrors,
 			datetimeNow,
-			hasDeleted
+			hasDeleted,
+			orderId
 		);
 
 		insert log;
@@ -85,7 +87,8 @@ public with sharing class IntegrationLog {
 			statusCode,
 			hasAnyErrors,
 			datetimeNow,
-			hasDeleted
+			hasDeleted,
+			orderId
 		);
 
 		insert log;
@@ -121,7 +124,8 @@ public with sharing class IntegrationLog {
 		Integer statusCode,
 		Boolean hasAnyErrors,
 		Datetime datetimeNow,
-		Boolean hasDeleted
+		Boolean hasDeleted,
+		Id orderId
 	) {
 		return new IntegrationLog__c(
 			Name = integrationName + ' ' + recordTypeName,
@@ -136,7 +140,8 @@ public with sharing class IntegrationLog {
 			IntegrationStatus__c = (hasAnyErrors ? 'Error' : 'Success'),
 			Status__c = (statusCode != 200 && statusCode != 201 ? 'Error' : 'Success'),
 			ErrorMessage__c = errorMessage.length() > 130000 ? errorMessage.substring(0, 130000) : errorMessage,
-			HasDeleted__c = hasDeleted
+			HasDeleted__c = hasDeleted,
+			Order__c = orderId
 		);
 	}
 

@@ -23,16 +23,6 @@ public with sharing class IntegrationUtils {
             }
             else {
                 System.debug('ERRO ORIGINAL => ' + upsertResult.getErrors()[0].getMessage());
-                
-                // System.debug('ERRO TRATADO => ' + handlerErrorMessage(
-                //     upsertResult.getErrors()[0].getMessage()
-                //     ));
-					
-                // responseData.error(
-                //     String.valueOf(sobjectResult.get(field)),
-                // handlerErrorMessage(
-                //     upsertResult.getErrors()[0].getMessage()
-                //     ),
                 String.valueOf(sobjectResult.getSObjectType());
                 System.debug(responseData);
                 
@@ -45,16 +35,6 @@ public with sharing class IntegrationUtils {
         return hasError;
     }
     
-    // private static String handlerErrorMessage(String errorMessage) {
-    //     System.debug('ENTROU NO HANDLER');
-        
-    //     if(errorMessage.contains('Account') ||
-    //        errorMessage.contains('ACCOUNT')) {
-    //         return Label.Account_Not_Found;
-    //     }
-        
-    //     return errorMessage;
-    // }
     
     // Child records upsert validation, adding results to the response list
     public static void upsertChildRecords(List<Database.UpsertResult> upsertResults, Map<String, List<DataIntegrationFields.Response>> responseMap,
@@ -72,11 +52,6 @@ public with sharing class IntegrationUtils {
                     );
             }
             else {
-                // responseData.error(
-                //     String.valueOf(objectResult.get(field)),
-                // handlerErrorMessage(
-                //     upsertResult.getErrors()[0].getMessage()
-                //     ),
                 String.valueOf(objectResult.getSObjectType());
             }
             

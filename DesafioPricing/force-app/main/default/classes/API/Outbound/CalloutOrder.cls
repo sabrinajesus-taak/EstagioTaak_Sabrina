@@ -16,6 +16,13 @@ public with sharing class CalloutOrder {
             sendOrderList = getOrders(orderIdList);
             payload = JSON.serialize(new DataIntegrationFields.RequestList( fillOrderRequestList(sendOrderList) ));
             
+            // DEBUGS
+            System.debug('===== PEDIDOS ENVIADOS =====');
+            System.debug(sendOrderList);
+            
+            System.debug('===== PAYLOAD FINAL =====');
+            System.debug(payload);
+            
             System.debug(accessTokenLog);
             System.debug(payload);
             
@@ -49,7 +56,8 @@ public with sharing class CalloutOrder {
             integrationSetting.endpoint,
             response.getStatusCode(),
             calloutResponse.hasError,
-            false
+            false,
+            sendOrderList[0].Id
                 );
             
             if (!String.isBlank(accessTokenLog.response)) {
@@ -64,10 +72,12 @@ public with sharing class CalloutOrder {
         }
         catch (Exception ex) {
             System.debug('Exception Integration Log => ' + ex.getMessage() + ' - ' + ex.getStackTraceString());
+            
         }
         
         return calloutResponse;
     }
+    
     
     public static List<Order> getOrders(List<String> orderIdList) {
         return [
@@ -148,7 +158,8 @@ public with sharing class CalloutOrder {
         endpoint,
         statusCode,
         (statusCode != 200),
-        false
+        false,
+        null
             );
     }
     
@@ -178,7 +189,7 @@ public with sharing class CalloutOrder {
                 System.debug('REQUEST COM ERRO => ' + response.getBody());
             }
             
-            Boolean hasError = false;
+            Boolean hasError = (response.getStatusCode() != 200 && response.getStatusCode() != 201);
             List<DataIntegrationFields.ResponseParametersWrapper> responseParameters =
                 (List<DataIntegrationFields.ResponseParametersWrapper>)JSON.deserialize(
                 response.getBody(), List<DataIntegrationFields.ResponseParametersWrapper>.class
@@ -249,38 +260,56 @@ public with sharing class CalloutOrder {
         errorMessage.contains('ACCOUNT')) {
             return Label.Account_Not_Found;
         }
-
-		if(errorMessage.contains('DistributionCenter__c')) {
-			return Label.DistributionCenter_Not_Found;
-		}
-
-		if(errorMessage.contains('PaymentCondition__c')) {
-			return Label.PaymentTerm_Not_Found;
-		}
-
-		if(errorMessage.contains('Product2')) {
-			return Label.Product_Not_Found;
-		}
-
+        
+        if(errorMessage.contains('DistributionCenter__c')) {
+            return Label.DistributionCenter_Not_Found;
+        }
+        
+        if(errorMessage.contains('PaymentCondition__c')) {
+            return Label.PaymentTerm_Not_Found;
+        }
+        
+        if(errorMessage.contains('Product2')) {
+            return Label.Product_Not_Found;
+        }
+        
         return errorMessage;
     }
     
     public static void updateSObjectWithIntegrationLogId(List<SObject> sobjectList, String integrationLogId, String integrationType) {
         if (sobjectList.isEmpty()) return;
         
-        List<SObject> sobjectUpdateList = new List<SObject>();
-        String sobjectName = sobjectList[0].getSObjectType().getDescribe().getName();
-        
-        String query = 'SELECT Id, IntegrationLogInbound__c, IntegrationLogOutbound__c FROM ' + sobjectName + ' WHERE Id IN: sobjectList';
-        
-        for (SObject sobj : Database.query(query)) {
-            if (integrationType == 'IN') sobj.put('IntegrationLogInbound__c', integrationLogId);
-            else sobj.put('IntegrationLogOutbound__c', integrationLogId);
+        try {
+            List<SObject> sobjectUpdateList = new List<SObject>();
+            String sobjectName = sobjectList[0].getSObjectType().getDescribe().getName();
             
-            sobjectUpdateList.add(sobj);
+            IntegrationLog__c logRecord = [SELECT Status__c FROM IntegrationLog__c WHERE Id = :integrationLogId LIMIT 1];
+            
+            String logFieldId = (integrationType == 'IN') ? 'IntegrationLogInbound__c' : 'IntegrationLogOutbound__c';
+            
+            String query = 'SELECT Id, ' + logFieldId + ' FROM ' + sobjectName + ' WHERE Id IN: sobjectList';
+            
+            for (SObject sobj : Database.query(query)) {
+                sobj.put(logFieldId, integrationLogId);
+                
+                if (logRecord.Status__c == 'Error') {
+                    sobj.put('Status', 'IntegrationError');
+                } else {
+                    sobj.put('Status', 'Integrated');
+                }
+                
+                sobjectUpdateList.add(sobj);
+            }
+            
+            if (!sobjectUpdateList.isEmpty()) {
+                update sobjectUpdateList;
+                System.debug(sobjectUpdateList.size() + ' registros atualizados com sucesso');
+            }
+            
+        } catch (Exception ex) {
+            System.debug('❌ Exception => ' + ex.getMessage() + ' - ' + ex.getStackTraceString());
+            throw ex;
         }
-        
-        if (!sobjectUpdateList.isEmpty()) update sobjectUpdateList;
     }
     
     public static void updateIntegrationSetting(IntegrationSettings integrationSetting) {

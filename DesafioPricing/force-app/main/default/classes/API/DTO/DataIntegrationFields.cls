@@ -221,7 +221,7 @@ global with sharing class DataIntegrationFields {
 
 		public OrderParameters(Order order) {
 			this.externalId = order.ExternalId__c;
-			this.status = order.Status;
+			this.status = 'New';
 			this.effectiveDate = order.EffectiveDate;
 			this.deliveryDate = order.DeliveryDate__c;
 			this.accountExternalId = order.Account.ExternalId__c;

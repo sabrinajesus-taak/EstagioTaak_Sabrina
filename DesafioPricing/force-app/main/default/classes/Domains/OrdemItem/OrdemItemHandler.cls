@@ -32,11 +32,15 @@ public class OrdemItemHandler extends TriggerHandler {
     }
     
     public override void afterInsert() {
-        updateOrderDiscount();
+        //updateOrderDiscount();
     }
     
     public override void afterUpdate() {
-        updateOrderDiscount();
+        //updateOrderDiscount();
+    }
+    
+    public override void afterDelete() {
+        //updateOrderDiscount();
     }
     
     private void executePricingLogic() {
@@ -186,158 +190,35 @@ public class OrdemItemHandler extends TriggerHandler {
     //criação do metodo para critério 06 do pedido de venda
     //impede mudar produto, qtd e preco
     private void checkActiveOrderItem() {
-        List<OrderItem> listToValidate;
-        Set<Id> idOrders = new Set<Id>();
-        Map<Id, Order> idMapOrders = new Map<Id, Order>();
-        
-        if (Trigger.isDelete) {
-            listToValidate = oldRecords; //usa os registros antigos
-        } else {
-            listToValidate = newRecords; //se não estuver deletando usa os novos
-        }
-        
-        for (OrderItem iOrderItem: listToValidate) {
-            idOrders.add(iOrderItem.OrderId);
-        }
-        
-        idMapOrders = OrderSelector.getOrdersByIds(idOrders);
-        
-        for(OrderItem iOrderItem: listToValidate) {
-            Order order = idMapOrders.get(iOrderItem.OrderId);
-            if(order.Status == 'Approved') {
-                iOrderItem.addError('Não é possivel fazer qualquer alteração dos ITENS após o pedido ser marcado como Ativo.');
-                //metodo nativo que cancela a operação e coloca mensagem de erro na tela do usuario.
-            }
-        }
-    }
-    
-    // private void updateOrderDiscount() {
-        
-        //     Set<Id> orderIds = new Set<Id>();
-        
-        //     for(OrderItem iOrderItem : newRecords){
-            //         if(iOrderItem.OrderId != null){
-                //             orderIds.add(iOrderItem.OrderId);
-            //         }
-        //     }
-        
-        //     Map<Id, Decimal> discountByOrder = new Map<Id, Decimal>();
-        
-        //     for(OrderItem iOrderItem : [SELECT OrderId, Quantity, DiscountValue__c
-    //         FROM OrderItem
-    //         WHERE OrderId IN :orderIds]){
-            
-            //         System.debug(iOrderItem.DiscountValue__c);
-            
-            //         if(!discountByOrder.containsKey(iOrderItem.OrderId)){
-                //             discountByOrder.put(iOrderItem.OrderId,0);
-            //         }
-            
-            //         if(iOrderItem.DiscountValue__c != null){
-                
-                //             Decimal total = iOrderItem.Quantity * iOrderItem.DiscountValue__c;
-                
-                //             discountByOrder.put(iOrderItem.OrderId,
-                //             discountByOrder.get(iOrderItem.OrderId)
-                //                 + total
-                //                 );
-            //         }
-        //     }
-        
-        //     List<Order> ordersToUpdate = new List<Order>();
-        
-        //     for(Id orderId : discountByOrder.keySet()){
-            
-            //         ordersToUpdate.add(
-            //             new Order(
-            //             Id = orderId,
-            //             TotalDiscount__c = discountByOrder.get(orderId)));
-        //     }
-        
-        //     System.debug('Orders to update with discount: ' + ordersToUpdate);
-        
-        //     if(!ordersToUpdate.isEmpty()){
-            //         update ordersToUpdate;
-        //     }
-    // }
-    
-    private void updateOrderDiscount() {
         
         Set<Id> orderIds = new Set<Id>();
         
-        for (OrderItem item : newRecords) {
-            if (item.OrderId != null) {
-                orderIds.add(item.OrderId);
+        for(OrderItem iOrderItem : newRecords){
+            
+            if(iOrderItem.OrderId != null){
+                orderIds.add(iOrderItem.OrderId);
             }
+            
         }
         
-        if(orderIds.isEmpty()) return;
+        if(orderIds.isEmpty()){
+            return;
+        }
         
-        
-        // pega itens persistidos
-        Map<Id, OrderItem> itemsMap =
-            new Map<Id, OrderItem>([
-            SELECT
-                Id,
-                OrderId,
-                Quantity,
-                DiscountValue__c
-            FROM OrderItem
-            WHERE OrderId IN :orderIds
+        Map<Id, Order> orderMap = new Map<Id, Order>([
+            SELECT Id, Status
+            FROM Order
+            WHERE Id IN :orderIds
         ]);
         
-        
-        // sobrescreve pelos novos valores
-        for(OrderItem item : newRecords){
-            itemsMap.put(item.Id, item);
-        }
-        
-        
-        Map<Id, Decimal> totalByOrder =
-            new Map<Id, Decimal>();
-        
-        
-        for(OrderItem item : itemsMap.values()){
+        for(OrderItem iOrderItem : newRecords){
             
-            if(!totalByOrder.containsKey(item.OrderId)){
-                totalByOrder.put(item.OrderId,0);
+            Order parentOrder = orderMap.get(iOrderItem.OrderId);
+            
+            if(parentOrder != null && parentOrder.Status != 'New'){
+                iOrderItem.addError('Itens só podem ser alterados quando o pedido estiver em New.');
+
             }
-            
-            Decimal discount = 0;
-            
-            if(item.DiscountValue__c != null){
-                
-                discount =
-                    Math.abs(item.DiscountValue__c)
-                     * item.Quantity;
-            }
-            
-            totalByOrder.put(
-                item.OrderId,
-            totalByOrder.get(item.OrderId)
-                + discount
-                );
-        }
-        
-        
-        List<Order> ordersToUpdate =
-            new List<Order>();
-        
-        
-        for(Id orderId : totalByOrder.keySet()){
-            
-            ordersToUpdate.add(
-                new Order(
-                Id = orderId,
-            TotalDiscount__c =
-                totalByOrder.get(orderId)
-                )
-                );
-        }
-        
-        
-        if(!ordersToUpdate.isEmpty()){
-            update ordersToUpdate;
-        }
+        } 
     }
 }

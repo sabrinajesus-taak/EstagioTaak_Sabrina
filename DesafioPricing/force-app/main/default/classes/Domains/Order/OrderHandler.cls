@@ -18,7 +18,6 @@ public class OrderHandler extends TriggerHandler {
     }
     
     public override void beforeUpdate(){
-        validateStatusOrders();
         validateOrderItems();
         checkActiveOrder();
         //ainda preciso do checkActive order? atualiza ele para os novos status
@@ -26,7 +25,7 @@ public class OrderHandler extends TriggerHandler {
     
     public override void afterUpdate() {
         sendOfOrders();
-        checkActiveOrder();
+        // checkActiveOrder();
         itemsRecalculation();
     }
     
@@ -46,24 +45,40 @@ public class OrderHandler extends TriggerHandler {
     
     //metodo para bloquear a mudança de CD/Endereço/Data/Conta se o pedido estiver ativo.
     public void checkActiveOrder() {
-        List<Order> listToValidate;
         
-        if (Trigger.isDelete) {
-            listToValidate = oldRecords; //usa os registros antigos
-        } else {
-            listToValidate = newRecords; //se não estuver deletando usa os novos
+        if(Trigger.isInsert){
+            return;
         }
         
+        if(TriggerHandler.isBypassed('OrderHandler')){
+            return;
+        }
         
-        for(Order iOrder: listToValidate) {
-            //recupera a versão anterior para verificação
-            Order oldOrder = (oldRecordsMap != null) ? oldRecordsMap.get(iOrder.Id) : null;
+        for(Order iOrder : newRecords){
             
-            //identifica o status de origem
-            String validationStatus = (oldOrder != null) ? oldOrder.Status : iOrder.Status;
+            Order oldOrder = oldRecordsMap.get(iOrder.Id);
             
-            if (validationStatus == 'Approved') {
-                        iOrder.addError('Não é possivel fazer qualquer atualização do PEDIDO após este pedido ser aprovado.');
+            if(oldOrder == null){
+                continue;
+            }
+
+            if(oldOrder.Status == 'New'){
+                continue;
+            }
+            
+            //variavel for status update only
+             Boolean onlyStatusChanged =
+
+            iOrder.AccountId == oldOrder.AccountId &&
+            iOrder.Pricebook2Id == oldOrder.Pricebook2Id &&
+            iOrder.DeliveryDate__c == oldOrder.DeliveryDate__c &&
+            iOrder.PaymentCondition__c == oldOrder.PaymentCondition__c &&
+            iOrder.DistributionCenter__c == oldOrder.DistributionCenter__c &&
+            iOrder.AccountAddress__c == oldOrder.AccountAddress__c &&
+            iOrder.EffectiveDate == oldOrder.EffectiveDate;
+
+            if(!onlyStatusChanged){
+                 iOrder.addError('Só é possível editar pedidos com status "New".');
             }
         }
     }
@@ -108,17 +123,19 @@ public class OrderHandler extends TriggerHandler {
         }
     }
     
-    private void validateStatusOrders() {
-        for(Order iOrder : newRecords){
-            Order oldOrder = oldRecordsMap.get(iOrder.Id);
+    // private void validateStatusOrders() {
+    //     for(Order iOrder : newRecords){
+    //         Order oldOrder = oldRecordsMap.get(iOrder.Id);
             
-            if(iOrder.Status != oldOrder.Status){
-                if(oldOrder.status != 'New' || iOrder.Status != 'PendingApproval'){
-                    iOrder.Status.addError('A única mudança de status permitida é de Novo para Em aprovação.');
-                }
-            }
-        }
-    }
+    //         //se new for o anterior, o proximo e apenas pendding approval...
+            
+    //         if(iOrder.Status != oldOrder.Status){
+    //                 if(oldOrder.status != 'New' || iOrder.Status != 'PendingApproval'){
+    //                         iOrder.Status.addError('A única mudança de status permitida é de Novo para Em aprovação.');
+    //                 }
+    //         }
+    //     }
+    // }
     
     private void validateOrderItems(){
         List<Id> ordersIds = new List<Id>();
@@ -134,7 +151,7 @@ public class OrderHandler extends TriggerHandler {
         if(ordersIds.isEmpty()) return;
         
         Set<Id> ordersWithItems = new Set<Id>();
-
+        
         for(OrderItem item : [
         SELECT Id, OrderId
         FROM OrderItem
