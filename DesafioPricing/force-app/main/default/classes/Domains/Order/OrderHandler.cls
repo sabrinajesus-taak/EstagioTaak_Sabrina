@@ -54,31 +54,48 @@ public class OrderHandler extends TriggerHandler {
             return;
         }
         
+        Set<String> draftStatuses = new Set<String>{
+            'New',
+            'PendingApproval',
+            'IntegrationError'
+        };
+        
+        // DELETE
+        if(Trigger.isDelete){
+            
+            for(Order iOrder : oldRecords){
+                
+                if(draftStatuses.contains(iOrder.Status)){
+                    continue;
+                }
+                
+                iOrder.addError('Não é permitido excluir pedidos já em "Approved" ou "Integrated".');
+            }
+            return;
+        }
+        
+        // UPDATE
         for(Order iOrder : newRecords){
             
             Order oldOrder = oldRecordsMap.get(iOrder.Id);
             
-            if(oldOrder == null){
-                continue;
-            }
-
-            if(oldOrder.Status == 'New'){
+            // Se o status anterior era Draft, permite edição
+            if(draftStatuses.contains(oldOrder.Status)){
                 continue;
             }
             
-            //variavel for status update only
-             Boolean onlyStatusChanged =
-
+            Boolean onlyStatusChanged =
+                
             iOrder.AccountId == oldOrder.AccountId &&
-            iOrder.Pricebook2Id == oldOrder.Pricebook2Id &&
-            iOrder.DeliveryDate__c == oldOrder.DeliveryDate__c &&
-            iOrder.PaymentCondition__c == oldOrder.PaymentCondition__c &&
-            iOrder.DistributionCenter__c == oldOrder.DistributionCenter__c &&
-            iOrder.AccountAddress__c == oldOrder.AccountAddress__c &&
-            iOrder.EffectiveDate == oldOrder.EffectiveDate;
-
+                iOrder.Pricebook2Id == oldOrder.Pricebook2Id &&
+                iOrder.DeliveryDate__c == oldOrder.DeliveryDate__c &&
+                iOrder.PaymentCondition__c == oldOrder.PaymentCondition__c &&
+                iOrder.DistributionCenter__c == oldOrder.DistributionCenter__c &&
+                iOrder.AccountAddress__c == oldOrder.AccountAddress__c &&
+                iOrder.EffectiveDate == oldOrder.EffectiveDate;
+            
             if(!onlyStatusChanged){
-                 iOrder.addError('Só é possível editar pedidos com status "New".');
+                iOrder.addError('Não é permitido editar pedidos já ativadosem "Approved" ou "Integrated".');
             }
         }
     }
@@ -124,17 +141,17 @@ public class OrderHandler extends TriggerHandler {
     }
     
     // private void validateStatusOrders() {
-    //     for(Order iOrder : newRecords){
-    //         Order oldOrder = oldRecordsMap.get(iOrder.Id);
+        //     for(Order iOrder : newRecords){
+            //         Order oldOrder = oldRecordsMap.get(iOrder.Id);
             
-    //         //se new for o anterior, o proximo e apenas pendding approval...
+            //         //se new for o anterior, o proximo e apenas pendding approval...
             
-    //         if(iOrder.Status != oldOrder.Status){
-    //                 if(oldOrder.status != 'New' || iOrder.Status != 'PendingApproval'){
-    //                         iOrder.Status.addError('A única mudança de status permitida é de Novo para Em aprovação.');
-    //                 }
-    //         }
-    //     }
+            //         if(iOrder.Status != oldOrder.Status){
+                //                 if(oldOrder.status != 'New' || iOrder.Status != 'PendingApproval'){
+                    //                         iOrder.Status.addError('A única mudança de status permitida é de Novo para Em aprovação.');
+                //                 }
+            //         }
+        //     }
     // }
     
     private void validateOrderItems(){

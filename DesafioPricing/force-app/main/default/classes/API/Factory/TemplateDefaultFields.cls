@@ -20,60 +20,127 @@ public with sharing class TemplateDefaultFields {
 		}
 	}
 
-	public class AccountDefaults implements FieldDefaults {
-		public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
-			return new Map<String, Object>{
-				'Name' => 'Account - Teste'
-			};
-		}
-	}
-
-	public class Product2Defaults implements FieldDefaults {
-		public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
-			return new Map<String, Object>{
-				'Name' => 'TA35',
-				'ExternalId__c' => 'Product2' + countSObjectCreated
-			};
-		}
-	}
-
-	public class Pricebook2Defaults implements FieldDefaults {
-		public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
-			return new Map<String, Object>{
-				'Name' => 'Pricebook2 - Teste',
-				'ExternalId__c' => 'Pricebook2' + countSObjectCreated
-			};
-		}
-	}
-
-	public class PricebookEntryDefaults implements FieldDefaults {
-		public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
-			return new Map<String, Object>{
-				'UnitPrice' => 100,
-				'ExternalId__c' => 'PricebookEntry' + countSObjectCreated
-			};
-		}
-	}
-
-	public class OrderDefaults implements FieldDefaults {
-		public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
-			return new Map<String, Object>{
-				'EffectiveDate' => Date.today().addDays(2),
-				'Status' => 'Draft',
-				'ExternalId__c' => 'OrderExternalId' + countSObjectCreated
-			};
-		}
-	}
-
-	public class OrderItemDefaults implements FieldDefaults {
-		public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
-			return new Map<String, Object>{
-				'Quantity' => 10,
-				'UnitPrice' => 100.00,
-				'ExternalId__c' => 'OrderItemExternalId' + countSObjectCreated
-			};
-		}
-	}
+    public class CountryDefaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            return new Map<String, Object>{
+                'Name' => 'País Teste' + countSObjectCreated,
+                'CountryCode__c' => 'P' + countSObjectCreated
+            };
+        }
+    }
+    
+    public class StateDefaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            return new Map<String, Object>{
+                'Name' => 'Estado Teste' + countSObjectCreated,
+                'StateCode__c' => 'E' + countSObjectCreated
+            };
+        }
+    }
+    
+    public class CityDefaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            return new Map<String, Object>{
+                'Name' => 'Cidade Teste' + countSObjectCreated,
+                'CityCode__c' => 'C' + countSObjectCreated
+            };
+        }
+    }
+    
+    public class DistributionCenterDefaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            return new Map<String, Object>{
+                'Name' => 'Centro de Distribuição Teste' + countSObjectCreated,
+                'DistributionCenterCode__c' => 'DC' + countSObjectCreated
+            };
+        }
+    }
+    
+    //---------------------------------------------------
+    
+    public class ProductHierarchyDefaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            return new Map<String, Object>{
+                'Name' => 'Hierarquia Teste' + countSObjectCreated,
+                'Code__c' => 'H' + countSObjectCreated
+            };
+        }
+    }
+    
+    public class Product2Defaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            return new Map<String, Object>{
+                'Name' => 'Trator Teste' + countSObjectCreated,
+                'UniqueCode__c' => 'TRT ' + countSObjectCreated,
+                'ProductionCost__c' => 300000,
+                'IsActive' => true
+            };
+        }
+    }
+    
+    //------------------------------------------
+    
+    public class TaxDefaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            return new Map<String, Object>{
+                'Name' => 'Imposto Teste' + countSObjectCreated,
+                'TaxCode__c' => 'IP' + countSObjectCreated
+            };
+        }
+    }
+    
+    public class FreightDefaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            return new Map<String, Object>{
+                'Name' => 'Frete Teste' + countSObjectCreated,
+                'FreightCode__c' => 'F' + countSObjectCreated
+            };
+        }
+    }
+    
+    public class MargemDefaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            return new Map<String, Object>{
+                'Name' => 'Margem Teste' + countSObjectCreated,
+                'MargemCode__c' => 'M' + countSObjectCreated
+            };
+        }
+    }
+    
+    //-----------------------------------------------------
+    
+    public class AccountDefaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            // Vamos criar um CNPJ fictício: 12.345.678/0001- e o final muda com o contador
+            // Usamos String.valueOf(countSObjectCreated).leftPad(2, '0') para garantir 2 dígitos no final
+            String finalDoCnpj = String.valueOf(countSObjectCreated.intValue()).leftPad(2, '0');
+            
+            return new Map<String, Object>{
+                'Name' => 'Conta Teste' + countSObjectCreated,
+                'CNPJ__c' => '12.345.678/0001-' + finalDoCnpj // Fica formatado e único
+            };
+        }
+    }
+    
+    public class AccountGroupDefaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            return new Map<String, Object>{
+                'Name' => 'Grupo de Conta Teste' + countSObjectCreated,
+                'AccountGroupCode__c' => 'ACG' + countSObjectCreated
+            };
+        }
+    }
+    
+    //-----------------------------------------------------
+    
+    
+    public class PricebookEntryDefaults implements FieldDefaults {
+        public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {
+            return new Map<String, Object>{
+                'IsActive' => true
+            };
+        }
+    }
 
 	public class IntegrationSettingDefaults implements FieldDefaults {
 		public Map<String, Object> getFieldDefaults(Decimal countSObjectCreated) {

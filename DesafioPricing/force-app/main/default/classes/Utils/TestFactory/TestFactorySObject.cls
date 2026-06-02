@@ -54,7 +54,7 @@ public class TestFactorySObject {
     public class TestFactoryException extends Exception {
     }
     
-    public static void createPrincingScenario(){
+    public static Order createPrincingScenario(){
         TestFactorySObject factory = new TestFactorySObject();
         
         AccountGroup__c acg = (AccountGroup__c) factory.createSObject(new AccountGroup__c());
@@ -100,7 +100,7 @@ public class TestFactorySObject {
         
         Order pedido = new Order(
             AccountId = acc.Id,
-        Status = 'Draft',
+        Status = 'New',
         EffectiveDate = Date.today(),
         Pricebook2Id = stdPricebookId,
         DistributionCenter__c = dc.Id,
@@ -117,9 +117,11 @@ public class TestFactorySObject {
         IsActive = true
             );
         insert pbe;
+
+        return pedido;
     }
     
-    public static void createOrderItemScenario(){
+    public static Order createOrderItemScenario(){
         TestFactorySObject factory = new TestFactorySObject();
         
         AccountGroup__c acg = (AccountGroup__c) factory.createSObject(new AccountGroup__c());
@@ -179,10 +181,18 @@ public class TestFactorySObject {
         insert margem;
         
         Id stdPricebookId = Test.getStandardPricebookId();
+
+        PricebookEntry pbe = new PricebookEntry(
+            Pricebook2Id = stdPricebookId,
+        Product2Id = produto.Id,
+        UnitPrice = 1000,
+        IsActive = true
+            );
+        insert pbe;
         
         Order pedido = new Order(
             AccountId = acc.Id,
-        Status = 'Draft',
+        Status = 'New',
         EffectiveDate = Date.today(),
         Pricebook2Id = stdPricebookId,
         DistributionCenter__c = dc.Id,
@@ -192,13 +202,17 @@ public class TestFactorySObject {
             );
         insert pedido;
         
-        PricebookEntry pbe = new PricebookEntry(
-            Pricebook2Id = stdPricebookId,
+
+        OrderItem orderItem = new OrderItem(
+            OrderId = pedido.Id,
         Product2Id = produto.Id,
-        UnitPrice = 1000,
-        IsActive = true
+        PricebookEntryId = pbe.Id,
+        Quantity = 5,
+        UnitPrice = 1000
             );
-        insert pbe;
+        insert orderItem;
+
+        return pedido;
     }
     
 }
