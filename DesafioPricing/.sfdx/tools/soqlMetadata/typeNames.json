@@ -1,57 +1,78 @@
 [
   {
-    "name": "AccountAdd__c",
-    "custom": true,
-    "queryable": true
+    "name": "Account",
+    "custom": false
   },
   {
-    "name": "AccountGroup__c",
-    "custom": true,
-    "queryable": true
+    "name": "AccountHistory",
+    "custom": false
   },
   {
-    "name": "City__c",
-    "custom": true,
-    "queryable": true
+    "name": "Asset",
+    "custom": false
   },
   {
-    "name": "Country__c",
-    "custom": true,
-    "queryable": true
+    "name": "Attachment",
+    "custom": false
   },
   {
-    "name": "DistributionCenter__c",
-    "custom": true,
-    "queryable": true
+    "name": "Case",
+    "custom": false
   },
   {
-    "name": "Freight__c",
-    "custom": true,
-    "queryable": true
+    "name": "Contact",
+    "custom": false
   },
   {
-    "name": "Margem__c",
-    "custom": true,
-    "queryable": true
+    "name": "Contract",
+    "custom": false
   },
   {
-    "name": "ProductHierarchy__c",
-    "custom": true,
-    "queryable": true
+    "name": "Domain",
+    "custom": false
   },
   {
-    "name": "State__c",
-    "custom": true,
-    "queryable": true
+    "name": "Lead",
+    "custom": false
   },
   {
-    "name": "Tax__c",
-    "custom": true,
-    "queryable": true
+    "name": "Note",
+    "custom": false
   },
   {
-    "name": "aymentCondition__c",
-    "custom": true,
-    "queryable": true
+    "name": "Opportunity",
+    "custom": false
+  },
+  {
+    "name": "Order",
+    "custom": false
+  },
+  {
+    "name": "Pricebook2",
+    "custom": false
+  },
+  {
+    "name": "PricebookEntry",
+    "custom": false
+  },
+  {
+    "name": "Product2",
+    "custom": false
+  },
+  {
+    "name": "RecordType",
+    "custom": false
+  },
+  {
+    "name": "Report",
+    "custom": false
+  },
+  {
+    "name": "Task",
+    "custom": false
+  },
+  {
+    "name": "User",
+    "custom": false
   }
 ]
