@@ -1,0 +1,66 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: 0;
+}
+
+.body {
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    
+}
+
+.titulo{
+    font-weight: bold;
+    font-size: 25px;
+    text-align: center;
+
+}
+
+.boxSearch{
+    max-width: 350px;
+    width: 100%;
+    margin-left: auto;
+    margin-bottom: 10px;
+}
+
+.pNegritoIntroducao{
+    font-weight: bold;
+    padding-bottom: 9px;
+}
+
+.pNegrito{
+    font-weight: bold;
+}
+
+.lista{
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.pPadding{
+    padding-bottom: 8px;
+}
+
+.liPadding{
+    padding-bottom: 10px;;
+}
+
+.buttomVerMais{
+    width: 120px;
+    height: 35px;
+    display: block;
+    margin: 0 auto;
+}
+
+.paginationButtons{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;;
+}
+
+

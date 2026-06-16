@@ -1,0 +1,78 @@
+<template>
+  <template lwc:if={introducao}>
+    
+      <div class="body" >
+        <h1 class = "titulo">Perguntas Frequentes</h1>
+
+        <div class = "boxSearch">
+          <lightning-input type="search" placeholder="Pesquisar" onkeydown={handleKeyDown}></lightning-input>
+        </div>
+
+        <p class = "pNegritoIntroducao">Qual o valor para obter o frete grátis?</p>
+
+        <p>Para ter o benefício de entrega gratuita, sua compra deverá seguir os parâmetros de valor mínimo de compras conforme destadas abaixo: </p>
+
+        <ul class = "lista">
+          <li>Para as capitais São Paulo e Curitiba o valor para o frete grátis é a partir de R&150,00;</li>
+          <li>Demais localidades R& 100,00.</li>
+        </ul>
+
+        <p class = "pNegritoIntroducao">Como entrar em contato conosco?</p>
+
+        <p>Para quaisquer dúvidas acerca da nossa política de privacidade, quanto aos dados que possuímos sobre você, ou qualquer outra solicitação ou reclamação quanto à sua privacidade ou seus direitos relacionados à nossa virtual, por favor, entre em contato com a pessoa encarregada pelo tratamento de dados pessoais da BRF S.A. pelos seguintes canais:</p>
+        <p>Telefone: 0800 704 7060 (dias da semana, das 8h às 18h, ligação gratuita)</p>
+        <p>E-mail: <a href="atendimento@sac-mercatoemcasa.com.br">atendimento@sac-mercatoemcasa.com.br</a></p>
+      </div>
+  </template>
+
+  <template lwc:if={pesquisa} >
+    <div class="body">
+
+        <h1 class="titulo">FAQ</h1>
+
+        <div class="boxSearch">
+            <lightning-input type="search" value={termo} placeholder="Pesquisar" onchange={getQuestions}> </lightning-input>
+        </div>
+
+        <template for:each={paginatedQuestions} for:item="faq">
+            <div key={faq.Id}>
+                <p class="pNegrito">{faq.Question__c}</p>
+                <p class = "pPadding">{faq.Answer__c}</p>
+            </div>
+        </template>
+
+        <template lwc:if={buttonVerMais}>
+          <lightning-button class = "buttomVerMais" label = "Ver mais" onclick={handleVerMais} disabled={_disableVerMais}></lightning-button>
+        </template>
+
+        <template lwc:if={modoPaginacao}>
+          <div class = "paginationButtons">
+            <lightning-button label = "<" onclick={handlePrevious} disabled={_disablePrevious}></lightning-button>
+            <lightning-button label = ">" onclick={handleNext} disabled={_disablePrevious}></lightning-button>
+          </div>
+        </template>
+
+    </div>
+  </template >
+
+
+  <template lwc:if={mensagemNaoEncontrada}>
+    <div class = "body">
+
+      <h1 class="titulo">FAQ</h1>
+
+      <div class="boxSearch">
+        <lightning-input type="search" value={termo} placeholder="Pesquisar" onchange={getQuestions}> </lightning-input>
+      </div>
+
+      <p>Não há nenhuma mensagem com as palavras digitadas. Por favor tente novamente ou entre em contato com pelos seguintes canais: </p>
+      <p>Telefone: 0800 704 7060 (dias da semana, das 8h às 18h, ligação gratuita)</p>
+      <p>E-mail: <a href="atendimento@sac-mercatoemcasa.com.br">atendimento@sac-mercatoemcasa.com.br</a></p>
+
+    </div>
+
+  </template>
+  
+</template> 
+
+
