@@ -1,0 +1,520 @@
+<template>
+    <template if:true={isStep1}>
+        <div class="container">
+            
+            <!-- INDICADOR DE PROGRESSO -->
+            <div class="progress-steps">
+                <div class={step1Class} >
+                    <span class="step-number"></span>
+                    <p class="step-label">Pedido</p>
+                </div>
+                <div class={step2Class}>
+                    <span class="step-number"></span>
+                    <p class="step-label">Itens</p>
+                </div>
+                <div class={step3Class}>
+                    <span class="step-number"></span>
+                    <p class="step-label">Resumo</p>
+                </div>
+            </div>
+
+            <!-- FORMULÁRIO -->
+            <section class="form-section">
+                
+                <!-- CLIENTE -->
+                <div class="form-group">
+                    <lightning-combobox
+                        name="client"
+                        label="Cliente"
+                        placeholder="Selecione um cliente"
+                        value={formData.clientId}
+                        options={clientOptions}
+                        onchange={handleClientChange}
+                        required>
+                    </lightning-combobox>
+                </div>
+
+                <!-- ENDEREÇO -->
+                <div class="form-group">
+                    <lightning-combobox
+                        name="address"
+                        label="Endereço de Entrega"
+                        placeholder="Selecione um endereço"
+                        value={formData.addressId}
+                        options={addressOptions}
+                        onchange={handleAddressChange}
+                        required
+                        disabled={isClientDisabled}>
+                    </lightning-combobox>
+                </div>
+
+                <!-- PAGAMENTO -->
+                <div class="form-group">
+                    <lightning-combobox
+                        name="paymentCondition"
+                        label="Condição de Pagamento"
+                        placeholder="Selecione a condição"
+                        value={formData.paymentConditionId}
+                        options={paymentConditionOptions}
+                        onchange={handlePaymentChange}
+                        required>
+                    </lightning-combobox>
+                </div>
+
+                <!-- CENTRO DE DISTRIBUIÇÃO -->
+                <div class="form-group">
+                    <lightning-combobox
+                        name="distributionCenter"
+                        label="Centro de Distribuição"
+                        placeholder="Selecione um centro de Distribuição"
+                        value={formData.distributionCenterId}
+                        options={distributionsCentersOptions}
+                        onchange={handleDistributionCenterChange}
+                        required>
+                    </lightning-combobox>
+                </div>
+
+                <!-- CATÁLOGO  -->
+                <div class="form-group">
+                    <lightning-combobox
+                        name="priceCatalog"
+                        label="Catálogo de Preço"
+                        placeholder="Selecione o catálogo"
+                        value={formData.pricebookId}
+                        options={pricebooksOptions}
+                        onchange={handlePricebookChange}
+                        required>
+                    </lightning-combobox>
+                </div>
+
+                <!-- DATA DO PEDIDO -->
+                <div class="form-group">
+                    <lightning-input
+                        type="date"
+                        name="startDate"
+                        label="Data do pedido"
+                        value={formData.startDate}
+                        onchange={handleStartDateChange}
+                        required>
+                    </lightning-input>
+                </div>
+
+                <!-- DATA DO DELIVERY -->
+                <div class="form-group">
+                    <lightning-input
+                        type="date"
+                        name="deliveryDate"
+                        label="Data de Entrega"
+                        value={formData.deliveryDate}
+                        onchange={handleDeliveryDateChange}
+                        required>
+                    </lightning-input>
+                </div>
+
+                <!-- TIPO DE FRETE -->
+                <div class="form-group">
+                    <lightning-combobox
+                        name="freightType"
+                        label="Tipo de Frete"
+                        placeholder="Selecione o tipo de frete"
+                        value={formData.freightType}
+                        options={freightTypeOptions}
+                        onchange={handleFreightTypeChange}
+                        required>
+                    </lightning-combobox>
+                </div>
+            </section>
+
+            <!-- BOTÃO -->
+            <div class="button-group">
+                <lightning-button
+                    variant="brand"
+                    label="Avançar"
+                    onclick={handleAdvance}>
+                </lightning-button>
+            </div>
+        </div>
+    </template>
+
+    <!-- ETAPA 2 -->
+    <template if:true={isStep2}>
+        <div class="container">
+            
+            <div class="progress-steps">
+                <div class={step1Class}>
+                    <span class="step-number"></span>
+                    <p class="step-label">Pedido</p>
+                </div>
+                <div class={step2Class}>
+                    <span class="step-number"></span>
+                    <p class="step-label">Itens</p>
+                </div>
+                <div class={step3Class}>
+                    <span class="step-number"></span>
+                    <p class="step-label">Resumo</p>
+                </div>
+            </div>
+            
+            <!-- BARRA DE PESQUISA -->
+            <div class="search-section">
+                <lightning-input
+                    type="text"
+                    name="searchInput"
+                    label="Buscar Produto"
+                    placeholder="Nome ou Código"
+                    value={searchTerm}
+                    onchange={handleSearchChange}>
+                </lightning-input>
+                
+                <lightning-button
+                    variant="brand"
+                    label="Pesquisar"
+                    onclick={handleSearch}>
+                </lightning-button>
+                
+                <!-- Ícone do carrinho com badge -->
+                <div class="cart-icon-container">
+                    <lightning-button-icon
+                        icon-name="utility:cart"
+                        size="large"
+                        alternative-text="Carrinho"
+                        onclick={openCart}>
+                    </lightning-button-icon>
+                    <span class="cart-badge">{cartItemCount}</span>
+                </div>
+            </div>
+
+            <!-- GRID DE PRODUTOS (3 colunas x 2 linhas) -->
+            <div class="products-grid">
+                <template for:each={filteredProducts} for:item="product">
+                    <div class="product-card" key={product.id}>
+                        <h3>{product.name}</h3>
+                        <p class="price">R$ {product.listPrice}</p>
+                        <lightning-button
+                            variant="success"
+                            label="Adicionar"
+                            onclick={addToCart}
+                            data-product-id={product.id}
+                            data-product-name={product.name}
+                            data-price={product.listPrice}
+                            data-pricebook-entry-id={product.pricebookEntryId}>
+                        </lightning-button>
+                    </div>
+                </template>
+            </div>
+
+            <!-- BOTÕES DE AÇÃO -->
+            <div class="button-group">
+                <lightning-button
+                    label="← Voltar"
+                    onclick={handleBack}>
+                </lightning-button>
+                <lightning-button
+                    variant="brand"
+                    label="Resumo do Pedido →"
+                    onclick={handleAdvance}>
+                </lightning-button>
+            </div>
+        </div>
+
+        <!-- MODAL DO CARRINHO -->
+        <template if:true={showCart}>
+            <div class="cart-modal-overlay" onclick={closeCart}>
+                <div class="cart-modal" onclick={preventClose}>
+                    <div class="cart-modal-header">
+                        <h2>Seu Carrinho {cartItemCount} itens</h2>
+                        <lightning-button-icon
+                            icon-name="utility:close"
+                            size="large"
+                            onclick={closeCart}>
+                        </lightning-button-icon>
+                    </div>
+                    
+                    <div class="cart-modal-body">
+                        <template for:each={orderItems} for:item="item">
+                            <div class="cart-item" key={item.tempId}>
+                                <div class="cart-item-info">
+                                    <h4>{item.productName}</h4>
+                                    <p class="cart-item-detail">Lista: R$ {item.listPrice}</p>
+                                </div>
+                                
+                                <div class="cart-item-controls">
+                                    <div class="control-group">
+                                        <label>Quantidade:</label>
+                                        <lightning-input
+                                            type="number"
+                                            value={item.quantity}
+                                            data-temp-id={item.tempId}
+                                            onchange={updateItemQuantity}
+                                            min="1">
+                                        </lightning-input>
+                                    </div>
+                                    
+                                    <div class="control-group">
+                                        <label>Preço Praticado (R$):</label>
+                                        <lightning-input
+                                            type="number"
+                                            value={item.unitPrice}
+                                            data-temp-id={item.tempId}
+                                            onchange={updateItemPrice}
+                                            step="0.01">
+                                        </lightning-input>
+                                    </div>
+                                    
+                                    <!-- <div class="control-group">
+                                        <label>Desconto:</label>
+                                        <span class="discount-value">{item.discount}%</span>
+                                    </div> -->
+                                </div>
+                                
+                                <div class="cart-item-total">
+                                    <p>Total: R$ {item.quantity} x R$ {item.unitPrice}</p>
+                                    <lightning-button
+                                        variant="destructive"
+                                        icon-name="utility:delete"
+                                        data-temp-id={item.tempId}
+                                        onclick={removeFromCart}>
+                                    </lightning-button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    
+                    <div class="cart-modal-footer">
+                        <div class="cart-total">
+                            <h3>Total do Carrinho: R$ {totalOrderValue}</h3>
+                        </div>
+                        <lightning-button
+                            variant="neutral"
+                            label="Fechar"
+                            onclick={closeCart}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </template>
+
+    <!-- ETAPA 3: RESUMO DO PEDIDO -->
+    <template if:true={isStep3}>
+        <div class="container">
+            
+            <!-- PROGRESS BAR -->
+            <div class="progress-steps">
+                <div class={step1Class}>
+                    <span class="step-number"></span>
+                    <p class="step-label">Pedido</p>
+                </div>
+                <div class={step2Class}>
+                    <span class="step-number"></span>
+                    <p class="step-label">Itens</p>
+                </div>
+                <div class={step3Class}>
+                    <span class="step-number"></span>
+                    <p class="step-label">Resumo</p>
+                </div>
+            </div>
+            
+            <!-- RESUMO DO CABEÇALHO -->
+            <section class="summary-section">
+                <h3>Dados do Pedido</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <label>Cliente:</label>
+                        <p>{clientNameDisplay}</p>
+                    </div>
+                    <div class="summary-item">
+                        <label>Endereço de Entrega:</label>
+                        <p>{addressDisplay}</p>
+                    </div>
+                    <div class="summary-item">
+                        <label>Centro de distruibuição:</label>
+                        <p>{distributionCenterDisplay}</p>
+                    </div>
+                    <div class="summary-item">
+                        <label>Condição de Pagamento:</label>
+                        <p>{paymentConditionDisplay}</p>
+                    </div>
+                    <div class="summary-item">
+                        <label>Catálogo de Preço:</label>
+                        <p>{pricebookDisplay}</p>
+                    </div>
+                    <div class="summary-item">
+                        <label>Data do pedido:</label>
+                        <p>{startDateDisplay}</p>
+                    </div>
+                    <div class="summary-item">
+                        <label>Data de Entrega:</label>
+                        <p>{deliveryDateDisplay}</p>
+                    </div>
+                    <div class="summary-item">
+                        <label>Tipo de Frete:</label>
+                        <p>{freightTypeDisplay}</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- RESUMO DOS ITENS -->
+            <section class="summary-section">
+                <h3>Itens do Pedido</h3>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Quantidade</th>
+                            <th>Preço Lista</th>
+                            <th>Preço Praticado</th>
+                            <!-- <th>Desconto</th> -->
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={orderItems} for:item="item">
+                            <tr key={item.tempId}>
+                                <td>{item.productName}</td>
+                                <td>{item.quantity}</td>
+                                <td>R$ {item.listPrice}</td>
+                                <td>R$ {item.unitPrice}</td>
+                                <!-- <td>{item.discount}%</td> -->
+                                <td>R$ {calculatedTotal(item.quantity, item.unitPrice)}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </section>
+            
+            <!-- OBSERVAÇÕES -->
+            <section class="summary-section">
+                <h3>Observações da Nota Fiscal</h3>
+                <lightning-textarea
+                    name="observations"
+                    label="Observações"
+                    value={formData.observations}
+                    onchange={handleObservationsChange}
+                    placeholder="Digite suas observações aqui (opcional)">
+                </lightning-textarea>
+            </section>
+            
+            <!-- TOTAL DO PEDIDO -->
+            <section class="summary-section summary-total">
+                <h2>Total do Pedido: R$ {totalOrderValueDisplay}</h2>
+                <p class="summary-note">Valor mínimo do pedido: R$ 3.000,00</p>
+            </section>
+            
+            <!-- BOTÕES DE AÇÃO -->
+            <div class="button-group">
+                <lightning-button
+                    label="← Voltar"
+                    onclick={handleBack}>
+                </lightning-button>
+                <lightning-button
+                    variant="brand"
+                    label="Finalizar Pedido"
+                    onclick={handleSaveOrder}
+                    disabled={isSaving}>
+                </lightning-button>
+            </div>
+        </div>
+    </template>
+
+    <!-- TELA DE CONFIRMAÇÃO -->
+    <template if:true={isStep4}>
+
+        <div class="container">
+            <section class="success-section">
+                <h1>Pedido concluído!</h1>
+                <p>Seu pedido foi criado com sucesso.</p>
+
+                <div class="success-card">
+                    <h3>Resumo do Pedido</h3>
+                    <div class="summary-item">
+                        <label>ID do Pedido:</label>
+                        <p>{createdOrderId}</p>
+                    </div>
+
+                    <div class="summary-item">
+                        <label>Cliente:</label>
+                        <p>{clientNameDisplay}</p>
+                    </div>
+
+                    <div class="summary-item">
+                        <label>Endereço:</label>
+                        <p>{addressDisplay}</p>
+                    </div>
+
+                    <div class="summary-item">
+                        <label>Centro de Distribuição:</label>
+                        <p>{distributionCenterDisplay}</p>
+                    </div>
+
+                    <div class="summary-item">
+                        <label>Condição de Pagamento:</label>
+                        <p>{paymentConditionDisplay}</p>
+                    </div>
+
+                    <div class="summary-item">
+                        <label>Total do Pedido:</label>
+                        <p>{totalOrderValueDisplay}</p>
+                    </div>
+
+                    <div class="summary-item">
+                        <label>Data de início:</label>
+                        <p>{startDateDisplay}</p>
+                    </div>
+
+                    <div class="summary-item">
+                        <label>Tipo de Frete:</label>
+                        <p>{freightTypeDisplay}</p>
+                    </div>
+
+                    <div class="summary-item">
+                        <label>Data de entrega:</label>
+                        <p>{deliveryDateDisplay}</p>
+                    </div>
+                </div>
+
+                <div class="success-card">
+
+                    <template for:each={pricingInformationWithFormattedDiscount} for:item="item">
+
+                        <div key={item.Id}>
+
+                            <div class="summary-item">
+                                <label>PRODUTO:</label>
+                                <p>{item.Product2.Name}</p>
+                            </div>
+
+                            <div class="summary-item">
+                                <label>MARGEM:</label>
+                                <p>{item.MarginPercentage__c}%</p>
+                            </div>
+
+                            <div class="summary-item">
+                                <label>FRETE:</label>
+                                <p>R$ {item.FreightValue__c}</p>
+                            </div>
+
+                            <div class="summary-item">
+                                <label>IMPOSTO:</label>
+                                <p>{item.TaxPercentage__c}%</p>
+                            </div>
+
+                            <div class="summary-item">
+                                <label>DESCONTO:</label>
+                                <p>{item.DiscountPercentage__c}%</p>
+                            </div>
+
+                        </div>
+                        
+                    </template>
+                </div>
+
+                <lightning-button
+                    variant="brand"
+                    label="Criar Novo Pedido"
+                    onclick={handleNewOrder}>
+                </lightning-button>
+            </section>
+        </div>
+    </template>
+</template>

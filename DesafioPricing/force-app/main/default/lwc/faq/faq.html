@@ -8,20 +8,24 @@
           <lightning-input type="search" placeholder="Pesquisar" onkeydown={handleKeyDown}></lightning-input>
         </div>
 
-        <p class = "pNegritoIntroducao">Qual o valor para obter o frete grátis?</p>
+        <div class = "accordion">
+          <lightning-accordion allow-multiple-sections-open>
 
-        <p>Para ter o benefício de entrega gratuita, sua compra deverá seguir os parâmetros de valor mínimo de compras conforme destadas abaixo: </p>
+            <lightning-accordion-section label ="Qual o valor para obter o frete grátis?" class = "accordion">
+              <p class ="pPadding">Para ter o benefício de entrega gratuita, sua compra deverá seguir os parâmetros de valor mínimo de compras conforme destadas abaixo: </p>
+              <ul class = "lista">
+                <li>Para as capitais São Paulo e Curitiba o valor para o frete grátis é a partir de R&150,00;</li>
+                <li>Demais localidades R& 100,00.</li>
+              </ul>
+            </lightning-accordion-section>
 
-        <ul class = "lista">
-          <li>Para as capitais São Paulo e Curitiba o valor para o frete grátis é a partir de R&150,00;</li>
-          <li>Demais localidades R& 100,00.</li>
-        </ul>
+            <lightning-accordion-section label="Como entrar em contato conosco?" class = "accordion">
+              <p class = "pPadding">Para quaisquer dúvidas acerca da nossa política de privacidade, quanto aos dados que possuímos sobre você, ou qualquer outra solicitação ou reclamação quanto à sua privacidade ou seus direitos relacionados à nossa virtual, por favor, entre em contato com a pessoa encarregada pelo tratamento de dados pessoais da BRF S.A. pelos seguintes canais: <br> Telefone: 0800 704 7060 (dias da semana, das 8h às 18h, ligação gratuita) <br> E-mail: <a href="atendimento@sac-mercatoemcasa.com.br">atendimento@sac-mercatoemcasa.com.br</a> </p>
+            </lightning-accordion-section>
 
-        <p class = "pNegritoIntroducao">Como entrar em contato conosco?</p>
-
-        <p>Para quaisquer dúvidas acerca da nossa política de privacidade, quanto aos dados que possuímos sobre você, ou qualquer outra solicitação ou reclamação quanto à sua privacidade ou seus direitos relacionados à nossa virtual, por favor, entre em contato com a pessoa encarregada pelo tratamento de dados pessoais da BRF S.A. pelos seguintes canais:</p>
-        <p>Telefone: 0800 704 7060 (dias da semana, das 8h às 18h, ligação gratuita)</p>
-        <p>E-mail: <a href="atendimento@sac-mercatoemcasa.com.br">atendimento@sac-mercatoemcasa.com.br</a></p>
+          </lightning-accordion>
+        </div>
+        
       </div>
   </template>
 
@@ -35,22 +39,21 @@
         </div>
 
         <template for:each={paginatedQuestions} for:item="faq">
-            <div key={faq.Id}>
-                <p class="pNegrito">{faq.Question__c}</p>
-                <p class = "pPadding">{faq.Answer__c}</p>
-            </div>
+
+          <lightning-accordion key={faq.Id} allow-multiple-sections-open>
+
+                <lightning-accordion-section label={faq.Question__c} class = "accordion">
+                  <p class = "pPadding">{faq.Answer__c}</p>
+                </lightning-accordion-section>
+
+          </lightning-accordion>
         </template>
 
-        <template lwc:if={buttonVerMais}>
-          <lightning-button class = "buttomVerMais" label = "Ver mais" onclick={handleVerMais} disabled={_disableVerMais}></lightning-button>
-        </template>
 
-        <template lwc:if={modoPaginacao}>
-          <div class = "paginationButtons">
-            <lightning-button label = "<" onclick={handlePrevious} disabled={_disablePrevious}></lightning-button>
-            <lightning-button label = ">" onclick={handleNext} disabled={_disablePrevious}></lightning-button>
-          </div>
-        </template>
+        <div class = "paginationButtons">
+          <lightning-button label = {currentPage} onclick={handlePrevious} disabled={_disablePrevious}></lightning-button>
+          <lightning-button label = {currentPage2} onclick={handleNext} disabled={_disablePrevious}></lightning-button>
+        </div>
 
     </div>
   </template >

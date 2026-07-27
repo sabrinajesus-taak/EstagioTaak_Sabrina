@@ -148,6 +148,11 @@ public class OrdemItemHandler extends TriggerHandler {
                 Decimal unitCost = (product.ProductionCost__c != null) ? product.ProductionCost__c : 0;
                 
                 if(unitCost <= 0 || iOrderItem.FreightValue__c == null || taxFound == null || margem == null || iOrderItem.MarginPercentage__c <= 0) {
+                    System.debug('unitCost' + unitCost);
+                    System.debug('frete' + iOrderItem.FreightValue__c);
+                    System.debug('imposto' + taxFound);
+                    System.debug('margem' + margem);
+                    System.debug('margem percent' + iOrderItem.MarginPercentage__c);
                     iOrderItem.addError('Não está autorizada a venda deste produto devido a falta de parâmetros, entre em contato com o time de pricing.');
                     continue; // Pula para o próximo iOrderItem sem calcular
                 }

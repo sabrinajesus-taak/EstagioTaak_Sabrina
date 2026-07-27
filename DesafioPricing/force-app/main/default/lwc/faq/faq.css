@@ -10,6 +10,7 @@
     margin: 0 auto;
     padding: 20px;
     background-color: white;
+    border-radius: 15px;
     
 }
 
@@ -21,19 +22,9 @@
 }
 
 .boxSearch{
-    max-width: 350px;
-    width: 100%;
+    width: 50%;
     margin-left: auto;
     margin-bottom: 10px;
-}
-
-.pNegritoIntroducao{
-    font-weight: bold;
-    padding-bottom: 9px;
-}
-
-.pNegrito{
-    font-weight: bold;
 }
 
 .lista{
@@ -41,13 +32,18 @@
     padding-left: 20px;
 }
 
-.pPadding{
-    padding-bottom: 8px;
+p{
+    font-size: 14px;
 }
 
-.liPadding{
-    padding-bottom: 10px;;
+li {
+    font-size: 14px;
 }
+
+.pPadding{
+    padding: 8px;
+}
+
 
 .buttomVerMais{
     width: 120px;
@@ -63,4 +59,26 @@
     margin-top: 20px;;
 }
 
+.accordion {
+    border-radius: 15px;
+}
 
+@media (max-width: 768px) {
+
+    body{
+        padding-top: 20px;
+    }
+
+    .boxSearch {
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 10px;
+    }
+
+    .titulo{
+        font-weight: bolder;
+        display: flex;
+        justify-content: center;
+    }
+}
